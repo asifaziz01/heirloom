@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Noto Sans Devanagari', 'Noto Nastaliq Urdu', 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+    --color-paper: #fbf8f3;
+    --color-paper-2: #f3ede3;
+    --color-ink: #2b2118;
+    --color-ink-soft: #6b5b4b;
+    --color-line: #e4d9c8;
+    --color-accent: #8a4b2a;
+    --color-accent-soft: #f4e4d8;
+    --color-moss: #4f6b4a;
+    --color-moss-soft: #e3ece0;
+    --color-sky: #4e6f8f;
+    --color-rose: #9a5363;
+}
+
+@layer base {
+    html { -webkit-font-smoothing: antialiased; }
+    body { @apply bg-paper text-ink; }
+    .dark body { background: #17130f; color: #efe7dc; }
+    h1, h2, h3 { font-family: var(--font-serif); }
+    [x-cloak] { display: none !important; }
+}
+
+@layer components {
+    .card { @apply rounded-2xl border border-line bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/5; }
+    .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-3.5 py-2 text-sm font-medium text-ink transition hover:bg-paper-2 disabled:opacity-50 dark:border-white/15 dark:bg-white/5 dark:text-stone-100 dark:hover:bg-white/10; }
+    .btn-primary { @apply border-accent bg-accent text-white hover:bg-[#743d21] dark:border-accent dark:bg-accent dark:hover:bg-[#743d21]; }
+    .btn-danger { @apply border-red-200 text-red-700 hover:bg-red-50 dark:border-red-400/30 dark:text-red-300; }
+    .btn-sm { @apply px-2.5 py-1 text-xs; }
+    .input { @apply block w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink shadow-xs placeholder:text-stone-400 focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none dark:border-white/15 dark:bg-white/5 dark:text-stone-100; }
+    .label { @apply mb-1 block text-xs font-semibold tracking-wide text-ink-soft uppercase dark:text-stone-400; }
+    .help { @apply mt-1 text-xs text-ink-soft dark:text-stone-400; }
+    .badge { @apply inline-flex items-center gap-1 rounded-full bg-paper-2 px-2 py-0.5 text-xs font-medium text-ink-soft dark:bg-white/10 dark:text-stone-300; }
+    .link { @apply text-accent underline-offset-2 hover:underline dark:text-orange-300; }
+    .muted { @apply text-ink-soft dark:text-stone-400; }
+    .section-title { @apply mb-3 flex items-center justify-between font-serif text-lg font-semibold; }
+    .nav-link { @apply flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2 hover:text-ink dark:text-stone-400 dark:hover:bg-white/5 dark:hover:text-stone-100; }
+    .nav-link.active { @apply bg-accent-soft font-semibold text-accent dark:bg-white/10 dark:text-orange-200; }
+    .prose-story { @apply max-w-none text-[1.05rem] leading-8 whitespace-pre-line; }
+
+    /* Descendant chart: nested lists with connector lines */
+    .dtree ul { @apply relative flex justify-center pt-6; }
+    .dtree li { @apply relative flex flex-col items-center px-2 pt-6; }
+    .dtree li::before, .dtree li::after { content: ''; @apply absolute top-0 h-6 w-1/2 border-t border-line dark:border-white/20; }
+    .dtree li::before { right: 50%; }
+    .dtree li::after { left: 50%; @apply border-l; }
+    .dtree li:only-child::before, .dtree li:only-child::after { display: none; }
+    .dtree li:only-child { @apply pt-0; }
+    .dtree li:first-child::before, .dtree li:last-child::after { border: 0 none; }
+    .dtree li:last-child::before { @apply rounded-tr-lg border-r; }
+    .dtree li:first-child::after { @apply rounded-tl-lg; }
+    .dtree ul ul::before { content: ''; @apply absolute top-0 left-1/2 h-6 border-l border-line dark:border-white/20; }
+    .dtree > ul { @apply pt-0; }
+}
+
+@media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+}
