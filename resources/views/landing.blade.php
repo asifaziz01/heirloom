@@ -38,6 +38,7 @@
     </div>
 </section>
 
+@if(config('services.heritage.billing'))
 <section class="mx-auto max-w-6xl px-5 py-16">
     <h2 class="mb-8 text-3xl font-semibold">One plan for the whole family</h2>
     <div class="grid gap-4 md:grid-cols-4">
@@ -57,5 +58,6 @@
         @endforeach
     </div>
 </section>
+@endif
 <footer class="muted border-t border-line py-8 text-center text-sm dark:border-white/10">Heirloom · Your family’s private digital heritage</footer>
 </x-layouts.base>

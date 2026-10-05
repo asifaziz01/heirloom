@@ -14,6 +14,8 @@ class BillingController extends Controller
 {
     public function index(Family $family)
     {
+        abort_unless(config('services.heritage.billing'), 404);
+
         return view('billing.index', [
             'plans' => config('plans'),
             'usage' => [
@@ -27,6 +29,7 @@ class BillingController extends Controller
 
     public function change(Request $request, Family $family)
     {
+        abort_unless(config('services.heritage.billing'), 404);
         abort_unless($this->member()->atLeast('owner'), 403, 'Only the family owner manages the subscription.');
         $data = $request->validate(['plan' => ['required', Rule::in(array_keys(config('plans')))]]);
         $family->update(['plan' => $data['plan']]);

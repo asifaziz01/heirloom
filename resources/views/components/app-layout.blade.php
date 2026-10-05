@@ -26,9 +26,11 @@
         ['members.index', 'Members & invites', 'admin'],
         ['activity.index', 'Audit history', 'admin'],
         ['export.index', 'Import & export', 'admin'],
-        ['billing.index', 'Plan', 'admin'],
         ['families.edit', 'Settings', 'admin'],
     ];
+    if (config('services.heritage.billing')) {
+        array_splice($admin, 4, 0, [['billing.index', 'Plan', 'admin']]);
+    }
     $pending = $member->atLeast('editor') ? $family->changeRequests()->where('status', 'pending')->count() : 0;
 @endphp
 <x-layouts.base :title="$title">
@@ -78,7 +80,7 @@
         @endif
         <div class="mt-6 border-t border-line px-3 pt-4 text-sm dark:border-white/10">
             <div class="font-medium">{{ auth()->user()->name }}</div>
-            <div class="muted text-xs capitalize">{{ $member->role }} · {{ config('plans.'.$family->plan.'.name') }} plan</div>
+            <div class="muted text-xs capitalize">{{ $member->role }}{{ config('services.heritage.billing') ? ' · '.config('plans.'.$family->plan.'.name').' plan' : '' }}</div>
             <div class="mt-3 flex gap-2">
                 <button type="button" @click="$store.theme.toggle()" class="btn btn-sm" x-text="$store.theme.dark ? 'Light' : 'Dark'">Theme</button>
                 <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-sm">Sign out</button></form>

@@ -41,7 +41,9 @@ return [
     ],
 
     'heritage' => [
-        'all_features' => (bool) env('HERITAGE_ALL_FEATURES', false),
+        // Off: no pricing, plans or limits anywhere; every feature is available.
+        // On: plan limits/feature gates apply and the Plan page appears (payments are not wired up yet).
+        'billing' => (bool) env('BILLING_ENABLED', false),
     ],
 
 ];

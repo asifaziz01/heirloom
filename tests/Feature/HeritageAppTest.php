@@ -67,7 +67,7 @@ class HeritageAppTest extends TestCase
             route('partnerships.edit', [$f, $partnership]),
             route('interviews.index', $f), route('interviews.create', $f), route('interviews.show', [$f, $interview]),
             route('review.index', $f), route('members.index', $f), route('activity.index', $f), route('export.index', $f),
-            route('export.gedcom', $f), route('billing.index', $f), route('families.edit', $f),
+            route('export.gedcom', $f), route('families.edit', $f),
         ];
         $this->actingAs($this->owner);
         $this->get(route('home'))->assertRedirect(route('families.show', $f));
@@ -172,11 +172,23 @@ class HeritageAppTest extends TestCase
 
     public function test_free_plan_limits_people(): void
     {
-        config(['services.heritage.all_features' => false, 'plans.free.people' => 20]);
+        config(['services.heritage.billing' => true, 'plans.free.people' => 20]);
         $this->family->update(['plan' => 'free']);
         $this->actingAs($this->owner)->post(route('people.store', $this->family), ['given_name' => 'One', 'gender' => 'unknown'])
             ->assertSessionHasErrors('given_name');
         $this->actingAs($this->owner)->get(route('export.archive', $this->family))->assertForbidden();
+    }
+
+    public function test_billing_is_hidden_when_disabled(): void
+    {
+        $this->actingAs($this->owner)->get(route('billing.index', $this->family))->assertNotFound();
+        $this->actingAs($this->owner)->get(route('families.show', $this->family))->assertDontSee('Plan</a>', false);
+        $this->get('/')->assertDontSee('One plan for the whole family');
+        $this->family->update(['plan' => 'free']);
+        $this->assertTrue($this->family->fresh()->hasFeature('book'));
+
+        config(['services.heritage.billing' => true]);
+        $this->actingAs($this->owner)->get(route('billing.index', $this->family))->assertOk();
     }
 
     public function test_invitation_flow(): void

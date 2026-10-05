@@ -143,7 +143,7 @@ class GedcomTest extends TestCase
     {
         $family = $this->makeFamily();
         $family->update(['plan' => 'free']);
-        config(['plans.free.people' => 3, 'services.heritage.all_features' => false]);
+        config(['plans.free.people' => 3, 'services.heritage.billing' => true]);
 
         $this->expectException(\RuntimeException::class);
         (new GedcomImporter($family))->import(self::SAMPLE);

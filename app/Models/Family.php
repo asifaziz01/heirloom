@@ -120,13 +120,13 @@ class Family extends Model
 
     public function hasFeature(string $feature): bool
     {
-        return config('services.heritage.all_features') || in_array($feature, $this->planConfig()['features'], true);
+        return ! config('services.heritage.billing') || in_array($feature, $this->planConfig()['features'], true);
     }
 
     /** Returns null when within the limit, or a human-readable reason when it is reached. */
     public function limitReached(string $limit, int $adding = 1): ?string
     {
-        if (config('services.heritage.all_features')) {
+        if (! config('services.heritage.billing')) {
             return null;
         }
         $plan = $this->planConfig();

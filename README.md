@@ -25,7 +25,7 @@ Demo logins (seeded, local only):
 |---|---|
 | `ANTHROPIC_API_KEY` | Enables AI interview extraction, biographies, photo/document analysis, question suggestions. Everything else works without it. |
 | `ANTHROPIC_MODEL` | Defaults to `claude-opus-5-5`. |
-| `HERITAGE_ALL_FEATURES` | `true` unlocks every plan feature/limit (handy in dev). Set `false` to test plan gating. |
+| `BILLING_ENABLED` | Default `false`: no pricing, plans or limits anywhere, and every feature is available. Set `true` to turn on plan limits, feature gates, the Plan page and landing-page pricing. |
 
 Tests: `php vendor/bin/phpunit` (16 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits).
 
@@ -46,7 +46,7 @@ Tests: `php vendor/bin/phpunit` (16 tests: page smoke test, governance, permissi
 | §18 AI photo/document processing | Claude vision describes photos, estimates the era, and reads certificates and letters. It never identifies faces; results are suggestions only. |
 | §25 Mobile-first contribution | Responsive UI, phone camera upload, tagging with a searchable people picker, rough dates ("1958"). |
 | §26 Family book | A printable book (save as PDF) with chapters per generation, biographies, a pedigree chart, stories and a timeline. |
-| §31 Pricing | `config/plans.php`: Free / Family / Heritage / Legacy limits and feature gates, with usage meters. |
+| §31 Pricing | `config/plans.php`: Free / Family / Heritage / Legacy limits and feature gates, with usage meters. Dormant until `BILLING_ENABLED=true`. |
 | §35 Shareable tree | A 3–6 generation ancestor chart that downloads as SVG with subtle "Created with Heirloom" branding. |
 | §37 Risk 2: low engagement | Dashboard shows upcoming birthdays, anniversaries and remembrance days, "on this day", open family questions, "help complete the archive" (profile completeness), and recent activity. |
 | §37 Risk 4: trust | Private by default. Files are streamed only to members, and admins can make profiles admin-only. A "hide living relatives from viewers" setting and a full audit log with field-level diffs are included. |
@@ -61,7 +61,7 @@ Tests: `php vendor/bin/phpunit` (16 tests: page smoke test, governance, permissi
 
 ## Not built yet (next steps)
 
-- **Stripe billing.** Plan switching is direct; Checkout and webhooks are still needed.
+- **Billing (deferred).** Plans and limits exist but are switched off (`BILLING_ENABLED=false`). Turning them on later needs Stripe Checkout and webhooks; plan switching is currently direct.
 - **Email delivery for invitations.** Links are copy/share for now, e.g. via WhatsApp.
 - **Password reset and email verification.**
 - **Server-side transcription.** Browsers without the Web Speech API (Firefox, some Safari versions) can record but not transcribe live; a speech-to-text service would close this gap.

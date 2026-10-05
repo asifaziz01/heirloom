@@ -1,9 +1,6 @@
 <x-app-layout title="Plan">
     <h1 class="mb-1 text-3xl font-semibold">Family plan</h1>
     <p class="muted mb-6">One subscription for the whole family. Currently on <strong>{{ config('plans.'.$family->plan.'.name') }}</strong>.</p>
-    @if(config('services.heritage.all_features'))
-        <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-500/10 dark:text-amber-200">Development mode: <code>HERITAGE_ALL_FEATURES=true</code> unlocks every feature and limit regardless of plan.</div>
-    @endif
     <div class="card mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
         @php $plan = config('plans.'.$family->plan); @endphp
         @foreach(['people' => 'People', 'photos' => 'Photos', 'storage_mb' => 'Storage (MB)', 'contributors' => 'Contributors'] as $k => $l)
