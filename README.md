@@ -15,9 +15,18 @@ php artisan migrate --seed      # loads the demo "Rahman Family"
 php artisan serve
 ```
 
-Demo logins (seeded, local only):
-- `owner@heirloom.test` / `password` (owner)
-- `zara@heirloom.test` / `password` (contributor; her edits go to the review queue)
+Demo logins (seeded, local only, password is `password` for all):
+
+| Email | Role in the Rahman family | Use it to test |
+|---|---|---|
+| `owner@heirloom.test` | owner (Arman) | everything; also a viewer in the Thompson family (family switching) |
+| `imran@heirloom.test` | admin | settings, members, export, activity log |
+| `sana@heirloom.test` | editor | approving the review queue, preferring facts |
+| `zara@heirloom.test` | contributor | her structural edits go to the review queue |
+| `oliver@heirloom.test` | viewer | read-only; admin of the Thompson family |
+| `claire@heirloom.test` | viewer | owner of the second, smaller Thompson family |
+
+`DemoFamilySeeder` creates the core Rahman family; `SampleDataSeeder` (also run by `migrate --seed`) adds a fourth generation, albums, documents with transcriptions, an audio recording, interviews in draft/extracted/applied states, answered questions, invitations (pending, expired, accepted), a review queue with history, an audit trail, more conflicting facts, and the second family. To add it to an existing database that only has the demo: `php artisan db:seed --class=SampleDataSeeder`.
 
 `.env` settings:
 
