@@ -1,0 +1,27 @@
+{
+  "name": "Heirloom: family heritage archive",
+  "short_name": "Heirloom",
+  "description": "Preserve your family's story for generations. Photos, stories, recordings and the family tree, private to your family.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#fbf8f3",
+  "theme_color": "#8a4b2a",
+  "lang": "en",
+  "dir": "auto",
+  "categories": ["lifestyle", "social", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Upload a photo", "short_name": "Upload", "url": "/?source=pwa&go=upload", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Record an elder", "short_name": "Record", "url": "/?source=pwa&go=interview", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Write a story", "short_name": "Story", "url": "/?source=pwa&go=story", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

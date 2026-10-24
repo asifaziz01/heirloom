@@ -85,6 +85,17 @@
                 <button type="button" @click="$store.theme.toggle()" class="btn btn-sm" x-text="$store.theme.dark ? 'Light' : 'Dark'">Theme</button>
                 <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-sm">Sign out</button></form>
             </div>
+            <template x-if="$store.pwa.canInstall">
+                <div class="mt-3">
+                    <button type="button" @click="$store.pwa.install()" class="btn btn-sm w-full border-accent/40 text-accent">
+                        <svg class="size-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg>
+                        Install app
+                    </button>
+                    <div x-show="$store.pwa.showIosHelp" x-cloak class="muted mt-2 text-xs leading-5">
+                        On iPhone or iPad: tap <strong>Share</strong> <span aria-hidden="true">⎙</span> in Safari, then <strong>Add to Home Screen</strong>.
+                    </div>
+                </div>
+            </template>
         </div>
     </aside>
     <div x-show="menu" x-cloak @click="menu = false" class="fixed inset-0 z-30 bg-black/30 lg:hidden"></div>

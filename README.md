@@ -60,6 +60,17 @@ Tests: `php vendor/bin/phpunit` (16 tests: page smoke test, governance, permissi
 | §37 Risk 2: low engagement | Dashboard shows upcoming birthdays, anniversaries and remembrance days, "on this day", open family questions, "help complete the archive" (profile completeness), and recent activity. |
 | §37 Risk 4: trust | Private by default. Files are streamed only to members, and admins can make profiles admin-only. A "hide living relatives from viewers" setting and a full audit log with field-level diffs are included. |
 
+## Install it on a phone
+
+Heirloom is a Progressive Web App. Served over HTTPS (or from `localhost`), it can be added to the home screen and opens full-screen like a native app:
+
+- **Android (Chrome, Edge, Samsung Internet):** an **Install app** button appears in the sidebar; or use the browser menu → *Install app* / *Add to Home screen*.
+- **iPhone / iPad (Safari):** tap **Share** → **Add to Home Screen**. The sidebar button shows these steps.
+- Home-screen shortcuts (long-press the icon on Android) jump straight to *Upload a photo*, *Record an elder* and *Write a story*.
+- A service worker (`public/sw.js`) caches the built assets and recently opened pages, and shows an offline page when there is no connection. Private family files are never cached.
+
+Files: `public/manifest.webmanifest`, `public/icons/`, `public/sw.js`, `resources/views/offline.blade.php`. Publishing to the Apple App Store or Google Play would need a native wrapper such as Capacitor around this same site.
+
 ## Features added beyond the report
 
 - **"How are we related?" calculator.** It handles cousins *n* times removed, half-relations, great-/grand- prefixes, step-parents, in-laws and "aunt by marriage", and shows the connecting path.

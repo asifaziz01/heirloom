@@ -13,7 +13,18 @@ class HomeController extends Controller
             return view('landing');
         }
         $family = $user->currentFamily ?? $user->families()->first();
+        if (! $family) {
+            return redirect()->route('families.create');
+        }
 
-        return $family ? redirect()->route('families.show', $family) : redirect()->route('families.create');
+        // App shortcuts from the home-screen icon (see public/manifest.webmanifest)
+        $shortcut = match ($request->query('go')) {
+            'upload' => 'media.create',
+            'interview' => 'interviews.create',
+            'story' => 'stories.create',
+            default => 'families.show',
+        };
+
+        return redirect()->route($shortcut, $family);
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\InvitationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [Controllers\HomeController::class, 'index'])->name('home');
+Route::view('/offline', 'offline')->name('offline');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

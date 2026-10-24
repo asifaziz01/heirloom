@@ -28,6 +28,11 @@
     .dark body { background: #17130f; color: #efe7dc; }
     h1, h2, h3 { font-family: var(--font-serif); }
     [x-cloak] { display: none !important; }
+    /* Installed app: keep content clear of the notch and home indicator */
+    @media (display-mode: standalone) {
+        body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+        .sticky.top-0 { top: env(safe-area-inset-top); }
+    }
 }
 
 @layer components {

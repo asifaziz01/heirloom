@@ -39,4 +39,35 @@ Alpine.store('theme', {
     },
 });
 
+// Installable app: register the service worker and capture the browser's install prompt.
+Alpine.store('pwa', {
+    prompt: null,
+    standalone: matchMedia('(display-mode: standalone)').matches || navigator.standalone === true,
+    ios: /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream,
+    showIosHelp: false,
+    get canInstall() {
+        return !this.standalone && (this.prompt !== null || this.ios);
+    },
+    async install() {
+        if (this.prompt) {
+            this.prompt.prompt();
+            const { outcome } = await this.prompt.userChoice;
+            if (outcome === 'accepted') this.prompt = null;
+        } else if (this.ios) {
+            this.showIosHelp = true;
+        }
+    },
+});
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    Alpine.store('pwa').prompt = e;
+});
+window.addEventListener('appinstalled', () => {
+    Alpine.store('pwa').prompt = null;
+    Alpine.store('pwa').standalone = true;
+});
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {}));
+}
+
 Alpine.start();

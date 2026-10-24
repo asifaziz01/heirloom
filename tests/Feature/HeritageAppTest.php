@@ -39,6 +39,23 @@ class HeritageAppTest extends TestCase
         return Person::where('family_id', $this->family->id)->where('given_name', $given)->firstOrFail();
     }
 
+    public function test_it_is_installable_as_a_mobile_app(): void
+    {
+        $manifest = json_decode(file_get_contents(public_path('manifest.webmanifest')), true);
+        $this->assertSame('standalone', $manifest['display']);
+        $this->assertNotEmpty($manifest['icons']);
+        foreach ($manifest['icons'] as $icon) {
+            $this->assertFileExists(public_path($icon['src']));
+        }
+        $this->assertFileExists(public_path('sw.js'));
+
+        $this->get(route('offline'))->assertOk()->assertSee('offline');
+        $this->get(route('login'))->assertOk()->assertSee('manifest.webmanifest')->assertSee('apple-touch-icon');
+
+        $this->actingAs($this->owner)->get('/?go=upload')->assertRedirect(route('media.create', $this->family));
+        $this->actingAs($this->owner)->get('/?go=interview')->assertRedirect(route('interviews.create', $this->family));
+    }
+
     public function test_every_page_renders_for_the_owner(): void
     {
         $f = $this->family;
