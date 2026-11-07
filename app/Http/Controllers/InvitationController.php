@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\InvitationMail;
 use App\Models\Family;
 use App\Models\FamilyMember;
 use App\Models\Invitation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class InvitationController extends Controller
 {
@@ -39,7 +42,20 @@ class InvitationController extends Controller
             'expires_at' => now()->addDays(30),
         ]);
 
-        return back()->with('status', 'Invitation created. Share this link: '.route('invitations.show', $invitation->token));
+        $link = route('invitations.show', $invitation->token);
+        if ($invitation->email) {
+            try {
+                Mail::to($invitation->email)->send(new InvitationMail($invitation));
+
+                return back()->with('status', "Invitation emailed to {$invitation->email}. You can also share the link directly: {$link}");
+            } catch (TransportExceptionInterface $e) {
+                report($e);
+
+                return back()->with('status', "The invitation was created but the email could not be sent. Share this link instead: {$link}");
+            }
+        }
+
+        return back()->with('status', 'Invitation created. Share this link: '.$link);
     }
 
     public function destroy(Family $family, Invitation $invitation)

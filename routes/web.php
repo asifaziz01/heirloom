@@ -4,6 +4,7 @@ use App\Http\Controllers;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [Controllers\HomeController::class, 'index'])->name('home');
@@ -14,6 +15,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:register');
+
+    Route::get('/forgot-password', [PasswordResetController::class, 'request'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'email'])->middleware('throttle:password-reset')->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:password-reset')->name('password.update');
 });
 
 Route::get('/invite/{token}', [InvitationController::class, 'show'])->name('invitations.show');
@@ -121,6 +127,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('family:admin')->group(function () {
             Route::get('/settings', [FamilyController::class, 'edit'])->name('families.edit');
             Route::put('/settings', [FamilyController::class, 'update'])->name('families.update');
+            Route::delete('/settings', [FamilyController::class, 'destroy'])->name('families.destroy');
             Route::get('/members', [InvitationController::class, 'index'])->name('members.index');
             Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
             Route::delete('/invitations/{invitation}', [InvitationController::class, 'destroy'])->name('invitations.destroy');

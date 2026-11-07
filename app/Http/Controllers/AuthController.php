@@ -40,7 +40,8 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->merge([
-            'email' => trim((string) $request->input('email')) ?: null,
+            // Lowercased, because sign-in and password reset look the address up lowercased.
+            'email' => mb_strtolower(trim((string) $request->input('email'))) ?: null,
             'phone' => User::normalizePhone($request->input('phone')),
         ]);
         $data = $request->validate([

@@ -38,7 +38,7 @@ Demo logins (seeded, local only, password is `password` for all):
 | `ANTHROPIC_MODEL` | Defaults to `claude-opus-5-5`. |
 | `BILLING_ENABLED` | Default `false`: no pricing, plans or limits anywhere, and every feature is available. Set `true` to turn on plan limits, feature gates, the Plan page and landing-page pricing. |
 
-Tests: `php vendor/bin/phpunit` (16 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits).
+Tests: `php vendor/bin/phpunit` (31 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits, sign-in and rate limiting, password reset, invitation email, family deletion).
 
 ## Deploy it
 
@@ -63,7 +63,34 @@ Production `.env`:
 | `DB_CONNECTION` | SQLite is fine for one server. Use MySQL/MariaDB/Postgres for anything larger; the schema has no SQLite-only features. |
 | `FILESYSTEM_DISK` | Uploaded files live on the `local` disk under `storage/app/private`, so a single server (or a persistent volume) is required. Keep that directory in backups together with the database. |
 | `LOG_LEVEL` | `warning` or `error`. |
+| `MAIL_MAILER` + `MAIL_*` | `smtp` with the host's own mail server (see *Shared hosting* below). Used for password-reset links and emailed invitations; with `log` those emails only go to the log file. |
+| `QUEUE_CONNECTION` | `sync` unless you run a queue worker. Nothing is queued today, so `sync` is safe everywhere. |
 | `ANTHROPIC_API_KEY` | Optional; see above. |
+
+### Shared hosting (cPanel, Plesk, Hostinger and similar)
+
+Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is committed, so the server needs no Node; and SQLite plus the `local` disk need no extra services.
+
+1. **PHP.** In the host's PHP selector choose 8.3 with the `gd`, `zip`, `intl`, `fileinfo`, `mbstring`, `pdo_sqlite` (or `pdo_mysql`) extensions. In the PHP options (MultiPHP INI editor) set the limits from the block above.
+2. **Files.** Upload the whole project *outside* the web root, e.g. `~/heirloom`, and run `composer install --no-dev --optimize-autoloader` there (over SSH, or run it locally and upload the `vendor/` folder). Make `storage/` and `bootstrap/cache/` writable.
+3. **Web root.** Point the domain's document root at `~/heirloom/public` (cPanel: *Domains* → edit the document root). If the host forces `public_html`, copy the contents of `public/` into it and change the two `require` paths in `public_html/index.php` to `__DIR__.'/../heirloom/vendor/autoload.php'` and `__DIR__.'/../heirloom/bootstrap/app.php'`. The bundled `.htaccess` handles the rewrites on Apache/LiteSpeed.
+4. **Email.** Create a mailbox such as `no-reply@yourdomain.com` in the hosting panel, then in `.env`:
+
+   ```ini
+   MAIL_MAILER=smtp
+   MAIL_HOST=mail.yourdomain.com     ; the host's outgoing server, shown on the panel's "Connect devices" / "Mail client" page
+   MAIL_PORT=465
+   MAIL_SCHEME=smtps                 ; or MAIL_PORT=587 and MAIL_SCHEME=smtp for STARTTLS
+   MAIL_USERNAME=no-reply@yourdomain.com
+   MAIL_PASSWORD=<mailbox password>
+   MAIL_FROM_ADDRESS=no-reply@yourdomain.com
+   MAIL_FROM_NAME="Heirloom"
+   ```
+
+   Test it with `php artisan tinker --execute="Mail::raw('Heirloom test', fn (\$m) => \$m->to('you@example.com')->subject('Heirloom'));"` and check the inbox (and spam). Most shared hosts require the from-address to be a real mailbox on the same domain.
+5. **Database and app key.** `php artisan key:generate --force` once, then `php artisan migrate --force`. SQLite lives at `database/database.sqlite`; back it up together with `storage/app/private`.
+6. **Settings.** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://yourdomain.com`, `SESSION_SECURE_COOKIE=true`, `QUEUE_CONNECTION=sync`. `TRUSTED_PROXIES` is only needed if the site sits behind Cloudflare or a similar proxy. Finish with `php artisan optimize`; run it again after every `.env` change.
+7. **Cron (optional today).** Nothing is scheduled yet. If queued jobs are added later, a cron entry such as `* * * * * cd ~/heirloom && php artisan queue:work --stop-when-empty --max-time=50 > /dev/null 2>&1` runs them without a long-lived worker.
 
 **Demo data.** `DatabaseSeeder` refuses to run when `APP_ENV=production` because the demo accounts all use the password `password`. Set `SEED_DEMO_DATA=true` for a throwaway demo server only.
 
@@ -80,7 +107,7 @@ max_execution_time = 120 ; AI extraction and archive export run inside the reque
 
 **Health check.** `GET /up` returns 200 when the app boots.
 
-**Known gaps for a public launch** (see *Not built yet*): no password reset, no email/SMS verification, and AI calls plus the ZIP archive export run synchronously in the web request rather than on the queue.
+**Known gaps for a public launch** (see *Not built yet*): no email/SMS verification, no password reset for accounts that have only a mobile number, and AI calls plus the ZIP archive export run synchronously in the web request rather than on the queue.
 
 ## How the report maps to the code
 
@@ -126,8 +153,7 @@ Files: `public/manifest.webmanifest`, `public/icons/`, `public/sw.js`, `resource
 ## Not built yet (next steps)
 
 - **Billing (deferred).** Plans and limits exist but are switched off (`BILLING_ENABLED=false`). Turning them on later needs Stripe Checkout and webhooks; plan switching is currently direct.
-- **Email delivery for invitations.** Links are copy/share for now, e.g. via WhatsApp.
-- **Password reset and email/SMS verification.** Accounts can be created with an email address, a mobile number, or both, and either one signs you in; neither is verified yet. Sessions do not expire: users stay signed in until they sign out.
+- **Email/SMS verification.** Accounts can be created with an email address, a mobile number, or both, and either one signs you in; neither is verified yet. Password reset works by email (*Forgot it?* on the sign-in page); accounts with only a mobile number cannot reset yet because there is no SMS provider. Invitations are emailed when an address is given and can always be shared as a link. Sessions do not expire: users stay signed in until they sign out.
 - **Server-side transcription.** Browsers without the Web Speech API (Firefox, some Safari versions) can record but not transcribe live; a speech-to-text service would close this gap.
 - **Duplicate detection and merging**, especially after a GEDCOM import.
 - **Printed-book fulfilment and poster ordering** (revenue add-ons from §33).
