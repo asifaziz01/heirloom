@@ -32,11 +32,18 @@
                 </div>
             </section>
 
-            @if($aiEnabled && filled($interview->transcript))
+            @if($interview->isExtracting())
+                <x-job-status :url="route('interviews.status', [$family, $interview])" title="Extracting people, places, dates and a story from the transcript…" />
+            @elseif($aiEnabled && filled($interview->transcript))
                 <form method="POST" action="{{ route('interviews.extract', [$family, $interview]) }}" class="card flex flex-wrap items-center justify-between gap-3">
                     @csrf
-                    <div class="text-sm"><strong>Turn this into family history.</strong> AI finds people, places, dates and events and drafts a story. Nothing is saved until you confirm.</div>
-                    <button class="btn btn-primary">✨ {{ $ex ? 'Extract again' : 'Extract' }}</button>
+                    <div class="text-sm">
+                        <strong>Turn this into family history.</strong> AI finds people, places, dates and events and drafts a story. Nothing is saved until you confirm.
+                        @if($interview->status === 'failed' && $interview->extraction_error)
+                            <p class="mt-1 text-red-700 dark:text-red-300">Last attempt failed: {{ $interview->extraction_error }}</p>
+                        @endif
+                    </div>
+                    <button class="btn btn-primary">✨ {{ $ex || $interview->status === 'failed' ? 'Extract again' : 'Extract' }}</button>
                 </form>
             @elseif(! $aiEnabled)
                 <div class="card muted text-sm">AI extraction is off (set <code>ANTHROPIC_API_KEY</code> on a plan with AI). You can still save the transcript and <a class="link" href="{{ route('stories.create', [$family, 'teller' => $interview->person_id, 'person' => $interview->person_id]) }}">write it up as a story</a>.</div>

@@ -38,7 +38,7 @@ Demo logins (seeded, local only, password is `password` for all):
 | `ANTHROPIC_MODEL` | Defaults to `claude-opus-5-5`. |
 | `BILLING_ENABLED` | Default `false`: no pricing, plans or limits anywhere, and every feature is available. Set `true` to turn on plan limits, feature gates, the Plan page and landing-page pricing. |
 
-Tests: `php vendor/bin/phpunit` (31 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits, sign-in and rate limiting, password reset, invitation email, family deletion).
+Tests: `php vendor/bin/phpunit` (35 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits, sign-in and rate limiting, password reset, invitation email, family deletion, queued AI and export jobs).
 
 ## Deploy it
 
@@ -52,6 +52,12 @@ php artisan migrate --force           # never --seed in production (see below)
 php artisan optimize                  # caches config, routes, views and events
 ```
 
+**Queue worker (required).** AI extraction, photo/document analysis, biography drafts, question suggestions and the ZIP archive export run as queued jobs on the `database` queue (the `jobs` table is created by the migrations), so no web request waits on the Anthropic API or on zipping gigabytes of photos. Something has to run those jobs:
+
+- A server you control: `php artisan queue:work --tries=2 --max-time=3600` under Supervisor or systemd, restarted on each deploy (`php artisan queue:restart`).
+- Shared hosting, or anywhere without a long-lived process: a cron entry that runs the worker once a minute and lets it exit when the queue is empty (see *Shared hosting*, step 7). Jobs then start within a minute of being requested; the pages show "working on it" and poll until the result is ready.
+- No cron at all: `QUEUE_CONNECTION=sync` runs each job inside the request that triggered it, as the app did before. It works, but long AI calls or big archives will hit PHP and proxy time limits.
+
 Production `.env`:
 
 | Key | Value |
@@ -64,7 +70,7 @@ Production `.env`:
 | `FILESYSTEM_DISK` | Uploaded files live on the `local` disk under `storage/app/private`, so a single server (or a persistent volume) is required. Keep that directory in backups together with the database. |
 | `LOG_LEVEL` | `warning` or `error`. |
 | `MAIL_MAILER` + `MAIL_*` | `smtp` with the host's own mail server (see *Shared hosting* below). Used for password-reset links and emailed invitations; with `log` those emails only go to the log file. |
-| `QUEUE_CONNECTION` | `sync` unless you run a queue worker. Nothing is queued today, so `sync` is safe everywhere. |
+| `QUEUE_CONNECTION` | `database` (the default), with a worker or the cron entry above. `DB_QUEUE_RETRY_AFTER=600` keeps a slow job from being handed to a second worker while the first is still on it; the jobs themselves give up after 540 s and two attempts. `sync` only for a host with no cron. |
 | `ANTHROPIC_API_KEY` | Optional; see above. |
 
 ### Shared hosting (cPanel, Plesk, Hostinger and similar)
@@ -89,8 +95,14 @@ Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is c
 
    Test it with `php artisan tinker --execute="Mail::raw('Heirloom test', fn (\$m) => \$m->to('you@example.com')->subject('Heirloom'));"` and check the inbox (and spam). Most shared hosts require the from-address to be a real mailbox on the same domain.
 5. **Database and app key.** `php artisan key:generate --force` once, then `php artisan migrate --force`. SQLite lives at `database/database.sqlite`; back it up together with `storage/app/private`.
-6. **Settings.** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://yourdomain.com`, `SESSION_SECURE_COOKIE=true`, `QUEUE_CONNECTION=sync`. `TRUSTED_PROXIES` is only needed if the site sits behind Cloudflare or a similar proxy. Finish with `php artisan optimize`; run it again after every `.env` change.
-7. **Cron (optional today).** Nothing is scheduled yet. If queued jobs are added later, a cron entry such as `* * * * * cd ~/heirloom && php artisan queue:work --stop-when-empty --max-time=50 > /dev/null 2>&1` runs them without a long-lived worker.
+6. **Settings.** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://yourdomain.com`, `SESSION_SECURE_COOKIE=true`, `QUEUE_CONNECTION=database`, `DB_QUEUE_RETRY_AFTER=600`. `TRUSTED_PROXIES` is only needed if the site sits behind Cloudflare or a similar proxy. Finish with `php artisan optimize`; run it again after every `.env` change.
+7. **Cron (required).** Shared hosts cannot keep a queue worker alive, so a cron job starts one every minute; it processes whatever is waiting and exits when the queue is empty or after 50 seconds (a job already running finishes first). In cPanel's *Cron Jobs* add:
+
+   ```
+   * * * * * cd ~/heirloom && php artisan queue:work --stop-when-empty --max-time=50 > /dev/null 2>&1
+   ```
+
+   Use the full path to the PHP 8.3 binary if the host's default `php` is older (the PHP selector page shows it, e.g. `/usr/local/bin/ea-php83`). AI results and archive downloads then appear within about a minute; while a job is waiting or running the page shows a progress note and refreshes itself when the result is ready. Failed jobs land in the `failed_jobs` table (`php artisan queue:failed`); the page shows the reason, and the user can simply try again. Finished archives are kept under `storage/app/private/families/<id>/exports/` until downloaded or for one day.
 
 **Demo data.** `DatabaseSeeder` refuses to run when `APP_ENV=production` because the demo accounts all use the password `password`. Set `SEED_DEMO_DATA=true` for a throwaway demo server only.
 
@@ -100,14 +112,14 @@ Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is c
 upload_max_filesize = 200M
 post_max_size = 1G
 memory_limit = 512M      ; thumbnails decode the whole image; larger scans are served at full size instead
-max_execution_time = 120 ; AI extraction and archive export run inside the request for now
+max_execution_time = 120 ; uploads of many files; AI calls and the archive export run on the queue, not in the request
 ```
 
 **Rate limits.** Sign-in allows 5 attempts per minute per account from one address and 20 per minute per address; registration allows 10 per hour per address (`AppServiceProvider::configureRateLimiting`). The default `CACHE_STORE=database` is enough; Redis is faster at scale.
 
 **Health check.** `GET /up` returns 200 when the app boots.
 
-**Known gaps for a public launch** (see *Not built yet*): no email/SMS verification, no password reset for accounts that have only a mobile number, and AI calls plus the ZIP archive export run synchronously in the web request rather than on the queue.
+**Known gaps for a public launch** (see *Not built yet*): no email/SMS verification, and no password reset for accounts that have only a mobile number.
 
 ## How the report maps to the code
 

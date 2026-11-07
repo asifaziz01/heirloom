@@ -193,7 +193,7 @@ class HeritageAppTest extends TestCase
         $this->family->update(['plan' => 'free']);
         $this->actingAs($this->owner)->post(route('people.store', $this->family), ['given_name' => 'One', 'gender' => 'unknown'])
             ->assertSessionHasErrors('given_name');
-        $this->actingAs($this->owner)->get(route('export.archive', $this->family))->assertForbidden();
+        $this->actingAs($this->owner)->post(route('export.archive', $this->family))->assertForbidden();
     }
 
     public function test_billing_is_hidden_when_disabled(): void
@@ -233,7 +233,13 @@ class HeritageAppTest extends TestCase
 
     public function test_archive_export_builds_a_zip(): void
     {
-        $response = $this->actingAs($this->owner)->get(route('export.archive', $this->family));
+        // With QUEUE_CONNECTION=sync (as in tests and on hosts without cron) the ZIP is built inline and downloads at once.
+        $export = null;
+        $this->actingAs($this->owner)->post(route('export.archive', $this->family))
+            ->assertRedirect(route('export.download', [$this->family, $export = $this->family->exports()->latest('id')->firstOrFail()]));
+        $this->assertSame('done', $export->status);
+        Storage::disk('local')->assertExists($export->path);
+        $response = $this->actingAs($this->owner)->get(route('export.download', [$this->family, $export]));
         $response->assertOk();
         $this->assertStringContainsString('.zip', $response->headers->get('content-disposition'));
     }

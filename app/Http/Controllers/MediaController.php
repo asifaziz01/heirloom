@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AnalyzeMedia;
 use App\Models\Family;
 use App\Models\Media;
-use App\Services\HeritageAi;
 use App\Services\PlaceResolver;
 use App\Support\PartialDate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use RuntimeException;
 
 class MediaController extends Controller
 {
@@ -194,22 +193,27 @@ class MediaController extends Controller
         if ($limit === false || (int) $limit < 0) {
             return true;
         }
-        $bytes = (int) $limit * match (strtolower(substr($limit, -1))) { 'g' => 1073741824, 'm' => 1048576, 'k' => 1024, default => 1 };
+        $bytes = (int) $limit * match (strtolower(substr($limit, -1))) {
+            'g' => 1073741824, 'm' => 1048576, 'k' => 1024, default => 1
+        };
 
         return memory_get_usage() + $size[0] * $size[1] * 5 < $bytes * 0.8;
     }
 
-    /** AI photo/document analysis; results are stored as suggestions and shown for confirmation. */
-    public function analyze(Family $family, Media $media, HeritageAi $ai)
+    /** AI photo/document analysis; it runs on the queue and the result is shown as suggestions for confirmation. */
+    public function analyze(Family $family, Media $media)
     {
         abort_unless($family->hasFeature('ai'), 403, 'AI features are part of the Heritage plan.');
-        $known = $family->persons()->get()->map(fn ($p) => "{$p->id}: {$p->full_name}".($p->lifespan ? " ({$p->lifespan})" : ''))->all();
-        try {
-            $media->update(['ai_suggestions' => $ai->analyzeMedia($media, $known)]);
-        } catch (RuntimeException $e) {
-            return back()->withErrors(['ai' => $e->getMessage()]);
+        if (in_array($media->aiStatus(), ['pending', 'running'], true)) {
+            return back()->with('status', 'Analysis is already running.');
         }
+        AnalyzeMedia::setSuggestions($media, ['status' => 'pending']);
+        AnalyzeMedia::dispatch($media);
 
-        return back()->with('status', 'AI suggestions are ready below. Review them before applying.');
+        return back()->with('status', match ($media->fresh()->aiStatus()) {
+            'done' => 'AI suggestions are ready below. Review them before applying.',
+            'failed' => 'Analysis did not finish; see the message below.',
+            default => 'Analysing… this usually takes a minute or two. The suggestions appear here when they are ready.',
+        });
     }
 }

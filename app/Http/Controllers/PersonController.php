@@ -112,6 +112,9 @@ class PersonController extends Controller
             'linkedMember' => $family->members()->where('person_id', $person->id)->with('user')->first(),
             'people' => $family->persons()->where('id', '!=', $person->id)->orderBy('given_name')->get(['id', 'given_name', 'surname', 'birth_date']),
             'factsByField' => $person->facts->groupBy('field'),
+            // Latest queued AI request of each kind from the last day, so the page can show progress or the result.
+            'aiTasks' => $family->aiTasks()->where('person_id', $person->id)->where('created_at', '>', now()->subDay())
+                ->latest('id')->get()->unique('type')->keyBy('type'),
         ]);
     }
 
@@ -120,11 +123,19 @@ class PersonController extends Controller
         return view('people.timeline', ['person' => $person, 'items' => Timeline::forPerson($person)]);
     }
 
-    public function edit(Family $family, Person $person)
+    public function edit(Request $request, Family $family, Person $person)
     {
         $person->load(['birthPlace', 'deathPlace', 'names']);
+        // ?draft={ai task} pre-fills the biography with a finished AI draft; nothing is saved until the form is submitted.
+        $draft = $request->filled('draft')
+            ? $family->aiTasks()->where('person_id', $person->id)->where('type', 'biography')->where('status', 'done')->find($request->integer('draft'))
+            : null;
 
-        return view('people.edit', ['person' => $person, 'photos' => $person->media()->where('kind', 'photo')->get()]);
+        return view('people.edit', [
+            'person' => $person,
+            'photos' => $person->media()->where('kind', 'photo')->get(),
+            'draft' => $draft?->result['biography'] ?? null,
+        ]);
     }
 
     public function update(Request $request, Family $family, Person $person)

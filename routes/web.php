@@ -111,6 +111,11 @@ Route::middleware('auth')->group(function () {
 
             Route::post('/people/{person}/ai/biography', [Controllers\AiController::class, 'biography'])->name('ai.biography');
             Route::post('/people/{person}/ai/questions', [Controllers\AiController::class, 'questions'])->name('ai.questions');
+
+            // Progress of queued AI jobs, polled by the page that started them
+            Route::get('/interviews/{interview}/status', [Controllers\JobStatusController::class, 'interview'])->name('interviews.status');
+            Route::get('/media/{media}/status', [Controllers\JobStatusController::class, 'media'])->name('media.status');
+            Route::get('/ai/tasks/{aiTask}', [Controllers\JobStatusController::class, 'aiTask'])->name('ai.tasks.status');
         });
 
         // Editors and above
@@ -137,7 +142,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/export', [Controllers\ExportController::class, 'index'])->name('export.index');
             Route::get('/export/gedcom', [Controllers\ExportController::class, 'gedcom'])->name('export.gedcom');
             Route::post('/import/gedcom', [Controllers\ExportController::class, 'importGedcom'])->name('import.gedcom');
-            Route::get('/export/archive', [Controllers\ExportController::class, 'archive'])->name('export.archive');
+            Route::post('/export/archive', [Controllers\ExportController::class, 'archive'])->name('export.archive');
+            Route::get('/export/archive/{export}/status', [Controllers\JobStatusController::class, 'export'])->name('export.status');
+            Route::get('/export/archive/{export}/download', [Controllers\ExportController::class, 'download'])->name('export.download');
             Route::get('/plans', [Controllers\BillingController::class, 'index'])->name('billing.index');
             Route::post('/plans', [Controllers\BillingController::class, 'change'])->name('billing.change');
         });

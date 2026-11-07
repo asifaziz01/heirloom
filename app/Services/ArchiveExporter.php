@@ -19,10 +19,13 @@ class ArchiveExporter
 {
     public function __construct(private Family $family) {}
 
-    public function build(): string
+    /**
+     * Writes the ZIP to $path (normally families/{id}/exports/ on the private disk, via BuildArchive)
+     * or, when omitted, to a short-lived file in the system temp directory. Returns the path.
+     */
+    public function build(?string $path = null): string
     {
-        // System temp keeps the path short (Windows MAX_PATH) and the file is deleted after download.
-        $path = sys_get_temp_dir().DIRECTORY_SEPARATOR.$this->family->slug.'-archive-'.now()->format('Y-m-d-His').'.zip';
+        $path ??= sys_get_temp_dir().DIRECTORY_SEPARATOR.$this->family->slug.'-archive-'.now()->format('Y-m-d-His').'.zip';
         $zip = new ZipArchive;
         if ($zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             throw new RuntimeException('Could not create the archive file.');

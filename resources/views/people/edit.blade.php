@@ -4,7 +4,7 @@
         @if($member->needsReview())<p class="muted mb-4 text-sm">Your changes will be reviewed by a family admin.</p>@endif
         <form method="POST" action="{{ route('people.update', [$family, $person]) }}" class="card mt-4 space-y-6">
             @csrf @method('PUT')
-            @include('people._fields', ['person' => $person])
+            @include('people._fields', ['person' => $person, 'draft' => $draft ?? null])
             <div class="flex gap-2">
                 <button class="btn btn-primary">{{ $member->needsReview() ? 'Submit for review' : 'Save' }}</button>
                 <a href="{{ route('people.show', [$family, $person]) }}" class="btn">Cancel</a>
