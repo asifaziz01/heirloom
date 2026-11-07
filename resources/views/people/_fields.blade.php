@@ -54,7 +54,8 @@
 
     <div class="sm:col-span-2">
         <label class="label">Biography</label>
-        <textarea name="biography" rows="{{ old('biography') ? 12 : 5 }}" class="input" dir="auto" placeholder="Who were they? What do people remember about them?">{{ old('biography', $p?->biography) }}</textarea>
+        @if(! empty($draft))<p class="help mb-1">This is an AI draft written from the facts, events and stories on record. Check every detail and edit freely; it is saved only when you submit the form.</p>@endif
+        <textarea name="biography" rows="{{ old('biography', $draft ?? null) ? 12 : 5 }}" class="input" dir="auto" placeholder="Who were they? What do people remember about them?">{{ old('biography', $draft ?? $p?->biography) }}</textarea>
     </div>
     @if($member->atLeast('admin'))
         <div>

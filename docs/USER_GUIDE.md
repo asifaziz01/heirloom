@@ -182,7 +182,7 @@ Choose **Photos & files** in the menu, or **Upload photos** on the home page.
 
 Open any photo afterwards to change its details, move through the gallery with **Prev** and **Next**, download the original, or delete it. Every photo tagged with a person appears on that person's profile under **Photos & documents**.
 
-**AI help with photos and documents.** If the family archive has the AI helper switched on, pressing **Analyse with AI** describes the photo, estimates the year it was taken, and for a letter or certificate reads out the text so you can copy it into the transcription box. These are suggestions to check, not facts. The AI never tries to recognise faces. Tagging who is in a picture is always done by a person.
+**AI help with photos and documents.** If the family archive has the AI helper switched on, pressing **Analyse with AI** describes the photo, estimates the year it was taken, and for a letter or certificate reads out the text so you can copy it into the transcription box. The analysis runs in the background and usually takes a minute or two; the page shows a note while it works and refreshes itself when the suggestions are ready, so you can carry on with something else meanwhile. These are suggestions to check, not facts. The AI never tries to recognise faces. Tagging who is in a picture is always done by a person.
 
 ### Stories
 
@@ -208,7 +208,7 @@ This is the heart of Heirloom. Many of the most valuable memories exist only in 
 3. A list of suggested questions sits beside the transcript. Tap one to mark where you asked it. Sit somewhere quiet, keep the phone close, follow their stories wherever they lead, and ask "who else was there?"
 4. Press **Stop** when you are done. The recording and transcript are saved, and you can correct names or add anything that was missed.
 
-**Turning the conversation into family history.** If the AI helper is on, press the extraction button and Heirloom reads the transcript and suggests: people who were mentioned (matched to those already in the tree where possible), places, dated events for the timeline, a draft story, and follow-up questions for next time. Nothing is saved until you tick the items you want and press **Add selected items to the archive**. New people suggested this way still go through the review queue like any other addition.
+**Turning the conversation into family history.** If the AI helper is on, press the extraction button and Heirloom reads the transcript in the background (this usually takes a minute or two; the page shows a note while it works and updates itself when done) and suggests: people who were mentioned (matched to those already in the tree where possible), places, dated events for the timeline, a draft story, and follow-up questions for next time. Nothing is saved until you tick the items you want and press **Add selected items to the archive**. New people suggested this way still go through the review queue like any other addition.
 
 If the AI helper is off, you can still save the transcript and write it up as a story by hand.
 
@@ -263,7 +263,7 @@ Admins can open **Audit history** to see every change ever made to the archive: 
 
 From **Import & export** an admin can download:
 
-- **The complete family archive** as a single ZIP file. It contains the tree in GEDCOM format, a full copy of all the data, every story as a plain text document, every original photo and file, and a README explaining what is inside. Keep a copy somewhere safe once or twice a year.
+- **The complete family archive** as a single ZIP file. Press **Prepare complete archive**; packing everything takes a moment to a few minutes depending on how many photos there are, and a **Download** button appears on the same page when it is ready (the file is kept for one day or until you download it). It contains the tree in GEDCOM format, a full copy of all the data, every story as a plain text document, every original photo and file, and a README explaining what is inside. Keep a copy somewhere safe once or twice a year.
 - **The family tree as a GEDCOM file.** GEDCOM is the standard format that Ancestry, MyHeritage, FamilySearch, Gramps and almost every other genealogy program can open. Second marriages, adoptions and step relationships are preserved.
 - **The family book**, by opening it and saving it as a PDF.
 - **A tree chart as an image**, from the Ancestors view on any profile.
@@ -301,7 +301,7 @@ A quick reference for the things people do most often. The role column shows the
 | Change someone's role | Manage → Members & invites → pick a role → Save | Admin |
 | Hide living relatives from viewers | Manage → Settings | Admin |
 | See who changed what | Manage → Audit history | Admin |
-| Download everything | Manage → Import & export → Download complete archive | Admin |
+| Download everything | Manage → Import & export → Prepare complete archive, then Download | Admin |
 | Bring in a tree from another program | Manage → Import & export → Import a GEDCOM file | Admin |
 | Print a family book | History → Family book → Print / Save as PDF | Viewer |
 | Put Heirloom on my phone | **Install app** at the bottom of the menu, or Share → Add to Home Screen on iPhone | Anyone |

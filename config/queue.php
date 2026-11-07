@@ -40,7 +40,7 @@ return [
             'connection' => env('DB_QUEUE_CONNECTION'),
             'table' => env('DB_QUEUE_TABLE', 'jobs'),
             'queue' => env('DB_QUEUE', 'default'),
-            'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 90),
+            'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 600), // longer than the AI jobs' timeout so a second cron tick never re-runs a job still in progress
             'after_commit' => false,
         ],
 

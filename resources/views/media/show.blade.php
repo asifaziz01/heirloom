@@ -1,4 +1,4 @@
-@php $ai = $media->ai_suggestions; $canEdit = $member->atLeast('contributor'); @endphp
+@php $aiStatus = $media->aiStatus(); $ai = $aiStatus === 'done' ? $media->ai_suggestions : null; $canEdit = $member->atLeast('contributor'); @endphp
 <x-app-layout :title="$media->display_title">
     <div class="mb-3 flex items-center justify-between">
         <a href="{{ route('media.index', $family) }}" class="link text-sm">← Photos & files</a>
@@ -24,7 +24,9 @@
             </div>
             <p class="muted mt-2 text-xs">{{ $media->original_name }} · {{ number_format($media->size / 1048576, 1) }} MB · uploaded by {{ $media->uploader?->name ?? '—' }} {{ $media->created_at->diffForHumans() }} · <a class="link" href="{{ route('media.file', [$media, 'download' => 1]) }}">download original</a></p>
 
-            @if($ai)
+            @if(in_array($aiStatus, ['pending', 'running']))
+                <x-job-status :url="route('media.status', [$family, $media])" :title="$media->kind === 'document' ? 'Reading this document…' : 'Looking at this photo…'" class="mt-5" />
+            @elseif($ai)
                 <div class="card mt-5 border-accent/40">
                     <h2 class="section-title">✨ AI suggestions <span class="muted font-sans text-xs font-normal">check before using</span></h2>
                     <p class="font-semibold">{{ $ai['title'] ?? '' }}</p>
@@ -71,10 +73,13 @@
             </form>
 
             @if($canEdit && $media->isImage())
-                @if($family->hasFeature('ai') && \App\Services\HeritageAi::enabled())
+                @if($family->hasFeature('ai') && \App\Services\HeritageAi::enabled() && ! in_array($aiStatus, ['pending', 'running']))
                     <form method="POST" action="{{ route('media.analyze', [$family, $media]) }}" class="card">
                         @csrf
                         <p class="mb-2 text-sm">{{ $media->kind === 'document' ? 'Read names, dates and places from this document.' : 'Describe this photo and estimate when it was taken.' }}</p>
+                        @if($aiStatus === 'failed')
+                            <p class="mb-2 text-sm text-red-700 dark:text-red-300">Last attempt failed: {{ $media->ai_suggestions['error'] ?? 'unknown error' }}</p>
+                        @endif
                         <button class="btn w-full">✨ Analyse with AI</button>
                     </form>
                 @endif

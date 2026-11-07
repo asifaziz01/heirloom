@@ -113,6 +113,16 @@ class Family extends Model
         return $this->hasMany(Interview::class);
     }
 
+    public function aiTasks(): HasMany
+    {
+        return $this->hasMany(AiTask::class);
+    }
+
+    public function exports(): HasMany
+    {
+        return $this->hasMany(Export::class);
+    }
+
     public function planConfig(): array
     {
         return config('plans.'.$this->plan, config('plans.free'));

@@ -11,6 +11,17 @@ class Interview extends Model
 
     protected $casts = ['extraction' => 'array'];
 
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
+    /** True while an extraction job is queued or running. */
+    public function isExtracting(): bool
+    {
+        return in_array($this->status, ['queued', 'extracting'], true);
+    }
+
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);

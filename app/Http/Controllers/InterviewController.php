@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ExtractInterview;
 use App\Models\Family;
 use App\Models\Interview;
 use App\Models\PersonName;
@@ -13,7 +14,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * Elder-story capture: record (with live browser transcription), extract with AI,
@@ -99,20 +99,24 @@ class InterviewController extends Controller
         return $this->respond($request, 'Interview saved.');
     }
 
-    public function extract(Family $family, Interview $interview, HeritageAi $ai)
+    public function extract(Family $family, Interview $interview)
     {
         abort_unless($family->hasFeature('ai'), 403, 'AI extraction is part of the Heritage plan.');
         if (blank($interview->transcript)) {
             return back()->withErrors(['ai' => 'Add or record a transcript first.']);
         }
-        $known = $family->persons()->get()->map(fn ($p) => "{$p->id}: {$p->full_name}".($p->lifespan ? " ({$p->lifespan})" : ''))->all();
-        try {
-            $interview->update(['extraction' => $ai->extractInterview($interview->transcript, $interview->person, $known), 'status' => 'extracted']);
-        } catch (RuntimeException $e) {
-            return back()->withErrors(['ai' => $e->getMessage()]);
+        if (in_array($interview->status, ['queued', 'extracting'], true)) {
+            return back()->with('status', 'Extraction is already running.');
         }
+        // The Anthropic call can take minutes, so it runs on the queue; the page polls until it is done.
+        $interview->update(['status' => 'queued', 'extraction_error' => null]);
+        ExtractInterview::dispatch($interview);
 
-        return back()->with('status', 'Review what the AI found. Nothing is saved until you confirm.');
+        return back()->with('status', match ($interview->fresh()->status) {
+            'extracted' => 'Review what the AI found. Nothing is saved until you confirm.',
+            'failed' => 'Extraction did not finish; see the message below.',
+            default => 'Extracting… this usually takes a minute or two. The results appear here when they are ready.',
+        });
     }
 
     /** Apply only the suggestions the user ticked. */

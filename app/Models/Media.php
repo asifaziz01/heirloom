@@ -19,6 +19,24 @@ class Media extends Model
 
     protected $casts = ['ai_suggestions' => 'array'];
 
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
+    /**
+     * pending | running | done | failed, or null when analysis was never requested.
+     * Suggestions saved before job tracking existed have no status key and count as done.
+     */
+    public function aiStatus(): ?string
+    {
+        if (! $this->ai_suggestions) {
+            return null;
+        }
+
+        return $this->ai_suggestions['status'] ?? 'done';
+    }
+
     public function album(): BelongsTo
     {
         return $this->belongsTo(Album::class);

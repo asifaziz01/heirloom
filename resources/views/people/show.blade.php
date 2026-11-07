@@ -164,11 +164,22 @@
 
             {{-- Biography --}}
             <section class="card">
+                @php $bioTask = $aiTasks['biography'] ?? null; @endphp
                 <h2 class="section-title">Life story
-                    @if($member->atLeast('contributor') && $family->hasFeature('ai') && \App\Services\HeritageAi::enabled())
+                    @if($member->atLeast('contributor') && $family->hasFeature('ai') && \App\Services\HeritageAi::enabled() && ! $bioTask?->isWorking())
                         <form method="POST" action="{{ route('ai.biography', [$family, $person]) }}">@csrf<button class="btn btn-sm">✨ Draft with AI</button></form>
                     @endif
                 </h2>
+                @if($bioTask?->isWorking())
+                    <x-job-status :url="route('ai.tasks.status', [$family, $bioTask])" title="Drafting a biography from the facts, events and stories…" class="mb-3" />
+                @elseif($bioTask?->status === 'done' && $member->atLeast('contributor'))
+                    <div class="card mb-3 flex flex-wrap items-center justify-between gap-3 border-accent/40 text-sm">
+                        <span><strong>An AI draft is ready.</strong> Check every detail, edit it, then save.</span>
+                        <a href="{{ route('people.edit', [$family, $person, 'draft' => $bioTask->id]) }}" class="btn btn-sm btn-primary">Open the draft</a>
+                    </div>
+                @elseif($bioTask?->status === 'failed')
+                    <p class="mb-3 text-sm text-red-700 dark:text-red-300">The AI draft could not be written: {{ $bioTask->error }}</p>
+                @endif
                 @if($person->biography)
                     <div class="prose-story" dir="auto">{{ $person->biography }}</div>
                 @else
@@ -303,7 +314,8 @@
             </section>
 
             @if($member->atLeast('contributor'))
-                <section class="card">
+                <section class="card" id="ask">
+                    @php $qTask = $aiTasks['questions'] ?? null; @endphp
                     <h2 class="section-title">Ask the family</h2>
                     <form method="POST" action="{{ route('questions.store', $family) }}" class="space-y-2">
                         @csrf
@@ -311,12 +323,17 @@
                         <textarea name="question" rows="2" required class="input" placeholder="What do you remember about {{ $person->given_name }}?"></textarea>
                         <button class="btn btn-sm">Post question</button>
                     </form>
-                    @if($family->hasFeature('ai') && \App\Services\HeritageAi::enabled())
+                    @if($qTask?->isWorking())
+                        <x-job-status :url="route('ai.tasks.status', [$family, $qTask])" title="Thinking of questions to ask…" note="This usually takes under a minute." class="mt-3 !p-3" />
+                    @elseif($family->hasFeature('ai') && \App\Services\HeritageAi::enabled())
                         <form method="POST" action="{{ route('ai.questions', [$family, $person]) }}" class="mt-2">@csrf<button class="link text-xs">✨ Suggest interview questions</button></form>
                     @endif
-                    @if(session('suggested_questions'))
+                    @if($qTask?->status === 'failed')
+                        <p class="mt-2 text-xs text-red-700 dark:text-red-300">{{ $qTask->error }}</p>
+                    @endif
+                    @if($qTask?->status === 'done' && ! empty($qTask->result['questions']))
                         <ul class="mt-3 space-y-1 text-sm">
-                            @foreach(session('suggested_questions') as $q)
+                            @foreach($qTask->result['questions'] as $q)
                                 <li class="flex items-start justify-between gap-2"><span>{{ $q }}</span>
                                     <form method="POST" action="{{ route('questions.store', $family) }}">@csrf<input type="hidden" name="question" value="{{ $q }}"><input type="hidden" name="about_person_id" value="{{ $person->id }}"><button class="link text-xs">Add</button></form>
                                 </li>
