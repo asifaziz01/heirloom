@@ -6,6 +6,8 @@ This is a working MVP of the product described in *Family Heritage SaaS — Mark
 
 Stack: Laravel 13 · PHP 8.3 · SQLite (any Laravel DB works) · Blade + Tailwind 4 + Alpine · Anthropic PHP SDK.
 
+For families using the app, see the plain-language [User Guide](docs/USER_GUIDE.md).
+
 ## Run it
 
 ```bash
@@ -37,6 +39,48 @@ Demo logins (seeded, local only, password is `password` for all):
 | `BILLING_ENABLED` | Default `false`: no pricing, plans or limits anywhere, and every feature is available. Set `true` to turn on plan limits, feature gates, the Plan page and landing-page pricing. |
 
 Tests: `php vendor/bin/phpunit` (16 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits).
+
+## Deploy it
+
+The app is a standard Laravel 13 site: any host that runs PHP 8.3 with the `gd`, `zip`, `intl` and `pdo` extensions works (Forge, Ploi, Fly.io, Render, a plain VPS with nginx + php-fpm). Point the web root at `public/`.
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan key:generate --force      # first deploy only
+php artisan migrate --force           # never --seed in production (see below)
+php artisan optimize                  # caches config, routes, views and events
+```
+
+Production `.env`:
+
+| Key | Value |
+|---|---|
+| `APP_ENV` / `APP_DEBUG` | `production` / `false`. In production every generated URL is forced to `https`. |
+| `APP_URL` | The public `https://` address. |
+| `SESSION_SECURE_COOKIE` | `true`, so the session and remember-me cookies are never sent over plain HTTP. |
+| `TRUSTED_PROXIES` | `*` behind a managed load balancer or Cloudflare, or a comma-separated list of proxy IPs/CIDRs. Without it the app sees the proxy's address: secure cookies, `https` detection and per-address rate limiting all key on the wrong client. |
+| `DB_CONNECTION` | SQLite is fine for one server. Use MySQL/MariaDB/Postgres for anything larger; the schema has no SQLite-only features. |
+| `FILESYSTEM_DISK` | Uploaded files live on the `local` disk under `storage/app/private`, so a single server (or a persistent volume) is required. Keep that directory in backups together with the database. |
+| `LOG_LEVEL` | `warning` or `error`. |
+| `ANTHROPIC_API_KEY` | Optional; see above. |
+
+**Demo data.** `DatabaseSeeder` refuses to run when `APP_ENV=production` because the demo accounts all use the password `password`. Set `SEED_DEMO_DATA=true` for a throwaway demo server only.
+
+**PHP limits.** Uploads allow up to 200 MB per file and 50 files per request, which is far above PHP's defaults. In `php.ini` (and the equivalent `client_max_body_size` in nginx) set at least:
+
+```ini
+upload_max_filesize = 200M
+post_max_size = 1G
+memory_limit = 512M      ; thumbnails decode the whole image; larger scans are served at full size instead
+max_execution_time = 120 ; AI extraction and archive export run inside the request for now
+```
+
+**Rate limits.** Sign-in allows 5 attempts per minute per account from one address and 20 per minute per address; registration allows 10 per hour per address (`AppServiceProvider::configureRateLimiting`). The default `CACHE_STORE=database` is enough; Redis is faster at scale.
+
+**Health check.** `GET /up` returns 200 when the app boots.
+
+**Known gaps for a public launch** (see *Not built yet*): no password reset, no email/SMS verification, and AI calls plus the ZIP archive export run synchronously in the web request rather than on the queue.
 
 ## How the report maps to the code
 
