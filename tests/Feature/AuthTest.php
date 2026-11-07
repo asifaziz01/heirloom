@@ -37,6 +37,30 @@ class AuthTest extends TestCase
         $this->assertGreaterThanOrEqual(525600, config('session.lifetime'));
     }
 
+    public function test_sign_in_attempts_are_rate_limited_per_account_and_address(): void
+    {
+        User::factory()->create(['email' => 'asif@example.com']);
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->post('/login', ['login' => 'asif@example.com', 'password' => 'wrong'])->assertSessionHasErrors('login');
+        }
+        $this->post('/login', ['login' => 'asif@example.com', 'password' => 'password'])->assertStatus(429);
+        $this->assertGuest();
+
+        // Another account from the same address is still allowed (until the per-address cap).
+        User::factory()->create(['email' => 'other@example.com']);
+        $this->post('/login', ['login' => 'other@example.com', 'password' => 'password'])->assertRedirect('/');
+    }
+
+    public function test_registration_is_rate_limited_per_address(): void
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $this->post('/register', ['name' => 'Bad', 'password' => 'x'])->assertSessionHasErrors();
+        }
+        $this->post('/register', ['name' => 'Late', 'email' => 'late@example.com', 'password' => 'secret123', 'password_confirmation' => 'secret123'])->assertStatus(429);
+        $this->assertDatabaseMissing('users', ['email' => 'late@example.com']);
+    }
+
     public function test_registration_accepts_email_mobile_or_both(): void
     {
         $this->post('/register', ['name' => 'Phone Only', 'phone' => '+1 (408) 555-0199', 'password' => 'secret123', 'password_confirmation' => 'secret123'])
