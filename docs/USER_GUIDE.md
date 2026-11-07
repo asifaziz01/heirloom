@@ -276,6 +276,10 @@ If you already built a tree elsewhere, export it from that program as a GEDCOM f
 
 Admins and the owner can change the family's name and description, choose the main language used for names and stories, and switch on the "hide living relatives" option, all under **Settings** in the menu.
 
+### Deleting a tree
+
+Only the owner can delete a family archive, from the bottom of **Settings** under **Delete this tree**. It removes everything at once: every person, relationship, story, event, photo, document, member and the audit history. Nothing can be brought back afterwards, so download the complete archive first if you want to keep a copy. To guard against slips, you must type the family's name before the button works. Other members simply lose access; their own accounts are untouched.
+
 ## Everyday tasks at a glance
 
 A quick reference for the things people do most often. The role column shows the minimum role needed.
@@ -300,6 +304,7 @@ A quick reference for the things people do most often. The role column shows the
 | Invite a relative | Manage → Members & invites → Create invitation link | Admin |
 | Change someone's role | Manage → Members & invites → pick a role → Save | Admin |
 | Hide living relatives from viewers | Manage → Settings | Admin |
+| Delete the whole tree for good | Manage → Settings → Delete this tree | Owner |
 | See who changed what | Manage → Audit history | Admin |
 | Download everything | Manage → Import & export → Download complete archive | Admin |
 | Bring in a tree from another program | Manage → Import & export → Import a GEDCOM file | Admin |

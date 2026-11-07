@@ -11,6 +11,8 @@ use App\Support\PartialDate;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FamilyController extends Controller
@@ -104,6 +106,38 @@ class FamilyController extends Controller
         $family->update($data + ['hide_living_from_viewers' => $request->boolean('hide_living_from_viewers')]);
 
         return back()->with('status', 'Family settings saved.');
+    }
+
+    /**
+     * Permanently deletes the whole archive: every person, link, story, event, file, member and record.
+     * Only the owner may do this, and they must type the family's name to confirm.
+     */
+    public function destroy(Request $request, Family $family)
+    {
+        abort_unless($family->owner_id === $request->user()->id, 403, 'Only the owner can delete a family archive.');
+
+        $request->validate([
+            'confirm_name' => ['required', 'string', function ($attribute, $value, $fail) use ($family) {
+                if (mb_strtolower(trim($value)) !== mb_strtolower($family->name)) {
+                    $fail('Type the family name exactly as shown to confirm.');
+                }
+            }],
+        ]);
+
+        $name = $family->name;
+        $id = $family->id;
+
+        DB::transaction(fn () => $family->delete());
+
+        $disk = Storage::disk('local');
+        $disk->deleteDirectory("families/{$id}");
+        $disk->deleteDirectory("thumbs/{$id}");
+
+        $user = $request->user()->fresh();
+        $next = $user->families()->first();
+        $user->update(['current_family_id' => $next?->id]);
+
+        return redirect()->route('families.index')->with('status', "The \"{$name}\" archive and everything in it has been permanently deleted.");
     }
 
     /** Birthdays of living relatives, wedding anniversaries and remembrance days in the next 30 days. */
