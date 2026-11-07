@@ -4,9 +4,10 @@
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
         <div><label class="label" for="name">Your name</label><input id="name" name="name" value="{{ old('name') }}" required autofocus class="input"></div>
-        <div><label class="label" for="email">Email</label><input id="email" name="email" type="email" value="{{ old('email') }}" required class="input"></div>
-        <div><label class="label" for="password">Password</label><input id="password" name="password" type="password" required class="input"><p class="help">At least 8 characters.</p></div>
-        <div><label class="label" for="password_confirmation">Confirm password</label><input id="password_confirmation" name="password_confirmation" type="password" required class="input"></div>
+        <div><label class="label" for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" class="input"></div>
+        <div><label class="label" for="phone">Mobile number</label><input id="phone" name="phone" type="tel" autocomplete="tel" value="{{ old('phone') }}" class="input" placeholder="+91 98765 43210"><p class="help">Give an email, a mobile number, or both. You can sign in with either.</p></div>
+        <div><label class="label" for="password">Password</label><input id="password" name="password" type="password" autocomplete="new-password" required class="input"><p class="help">At least 8 characters.</p></div>
+        <div><label class="label" for="password_confirmation">Confirm password</label><input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password" required class="input"></div>
         <button class="btn btn-primary w-full">Create account</button>
     </form>
     <p class="muted mt-5 text-center text-sm">Already have an account? <a href="{{ route('login') }}" class="link">Sign in</a></p>

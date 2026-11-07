@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
  * a widower who remarries, a divorce and remarriage, an adopted child,
  * a stepson, half-siblings, conflicting birth dates and multilingual names.
  *
- * Sign in: owner@heirloom.test / password (owner), zara@heirloom.test / password (contributor)
+ * Sign in: owner@heirloom.test or +1 408 555 0101 / password (owner), zara@heirloom.test or +1 416 555 0102 / password (contributor)
  */
 class DemoFamilySeeder extends Seeder
 {
@@ -29,8 +29,8 @@ class DemoFamilySeeder extends Seeder
 
     private function seed(): void
     {
-        $owner = User::firstOrCreate(['email' => 'owner@heirloom.test'], ['name' => 'Arman Rahman', 'password' => 'password']);
-        $zaraUser = User::firstOrCreate(['email' => 'zara@heirloom.test'], ['name' => 'Zara Siddiqui', 'password' => 'password']);
+        $owner = User::firstOrCreate(['email' => 'owner@heirloom.test'], ['name' => 'Arman Rahman', 'phone' => '+14085550101', 'password' => 'password']);
+        $zaraUser = User::firstOrCreate(['email' => 'zara@heirloom.test'], ['name' => 'Zara Siddiqui', 'phone' => '+14165550102', 'password' => 'password']);
 
         $family = Family::create([
             'name' => 'Rahman Family',

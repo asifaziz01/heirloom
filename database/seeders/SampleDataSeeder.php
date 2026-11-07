@@ -26,11 +26,11 @@ use Illuminate\Support\Str;
  * history, an audit trail, more sourced/conflicting facts, and a second family so
  * family switching can be tested.
  *
- * Extra logins (all with password "password"):
- *   imran@heirloom.test   admin        (Imran Rahman)
- *   sana@heirloom.test    editor       (Sana Rahman)
- *   oliver@heirloom.test  viewer       (Oliver Thompson)
- *   claire@heirloom.test  owner of the Thompson family, viewer in the Rahman family
+ * Extra logins (all with password "password"; the mobile number works in place of the email):
+ *   imran@heirloom.test  / +1 408 555 0103   admin        (Imran Rahman)
+ *   sana@heirloom.test   / +91 98765 50104   editor       (Sana Rahman)
+ *   oliver@heirloom.test / +44 7700 900105   viewer       (Oliver Thompson)
+ *   claire@heirloom.test / +44 7700 900106   owner of the Thompson family, viewer in the Rahman family
  *
  * Safe to run once on top of the demo data: php artisan db:seed --class=SampleDataSeeder
  */
@@ -100,12 +100,12 @@ class SampleDataSeeder extends Seeder
     private function users(): void
     {
         $f = $this->family;
-        $make = fn (string $email, string $name) => User::firstOrCreate(['email' => $email], ['name' => $name, 'password' => 'password', 'current_family_id' => $f->id]);
+        $make = fn (string $email, string $name, string $phone) => User::firstOrCreate(['email' => $email], ['name' => $name, 'phone' => $phone, 'password' => 'password', 'current_family_id' => $f->id]);
 
-        $imran = $make('imran@heirloom.test', 'Imran Rahman');
-        $sana = $make('sana@heirloom.test', 'Sana Rahman');
-        $oliver = $make('oliver@heirloom.test', 'Oliver Thompson');
-        $claire = $make('claire@heirloom.test', 'Claire Thompson');
+        $imran = $make('imran@heirloom.test', 'Imran Rahman', '+14085550103');
+        $sana = $make('sana@heirloom.test', 'Sana Rahman', '+919876550104');
+        $oliver = $make('oliver@heirloom.test', 'Oliver Thompson', '+447700900105');
+        $claire = $make('claire@heirloom.test', 'Claire Thompson', '+447700900106');
 
         FamilyMember::firstOrCreate(['family_id' => $f->id, 'user_id' => $imran->id], ['role' => 'admin', 'person_id' => $this->p('imran')->id]);
         FamilyMember::firstOrCreate(['family_id' => $f->id, 'user_id' => $sana->id], ['role' => 'editor', 'person_id' => $this->p('sana')->id]);

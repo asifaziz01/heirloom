@@ -8,7 +8,7 @@
             @foreach($members as $m)
                 <div class="flex flex-wrap items-center gap-3 border-b border-line py-3 last:border-0 dark:border-white/10">
                     <div class="min-w-0 flex-1">
-                        <div class="font-semibold">{{ $m->user->name }} <span class="muted text-xs font-normal">{{ $m->user->email }}</span></div>
+                        <div class="font-semibold">{{ $m->user->name }} <span class="muted text-xs font-normal">{{ $m->user->contact() }}</span></div>
                         <div class="muted text-xs">{{ $m->person ? 'In the tree as '.$m->person->full_name : 'Not linked to a person yet' }}</div>
                     </div>
                     @if($m->role === 'owner')

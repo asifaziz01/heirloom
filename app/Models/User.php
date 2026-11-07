@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'current_family_id'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'current_family_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -30,6 +30,44 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Mobile numbers are stored as digits with an optional leading "+", so that
+     * "+91 98765-43210", "(091) 98765 43210" and "+919876543210" all match.
+     */
+    public static function normalizePhone(?string $phone): ?string
+    {
+        $phone = trim((string) $phone);
+        if ($phone === '') {
+            return null;
+        }
+        $digits = preg_replace('/\D+/', '', $phone);
+        if ($digits === '' || $digits === null) {
+            return null;
+        }
+        if (str_starts_with($phone, '+') || str_starts_with($digits, '00')) {
+            $digits = '+'.ltrim($digits, '0');
+        }
+
+        return $digits;
+    }
+
+    /** Which column to match for a value typed into the "email or mobile" field. */
+    public static function credentialsFor(string $login): array
+    {
+        $login = trim($login);
+        if (str_contains($login, '@')) {
+            return ['email' => mb_strtolower($login)];
+        }
+
+        return ['phone' => self::normalizePhone($login) ?? $login];
+    }
+
+    /** How to address the user when there is no email, e.g. on the members page. */
+    public function contact(): ?string
+    {
+        return $this->email ?? $this->phone;
     }
 
     public function families(): BelongsToMany

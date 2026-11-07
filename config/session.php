@@ -32,7 +32,7 @@ return [
     |
     */
 
-    'lifetime' => (int) env('SESSION_LIFETIME', 120),
+    'lifetime' => (int) env('SESSION_LIFETIME', 525600), // a year; sign-ins also set the remember-me cookie, so users stay signed in until they sign out
 
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 

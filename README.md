@@ -17,14 +17,14 @@ php artisan serve
 
 Demo logins (seeded, local only, password is `password` for all):
 
-| Email | Role in the Rahman family | Use it to test |
+| Email or mobile | Role in the Rahman family | Use it to test |
 |---|---|---|
-| `owner@heirloom.test` | owner (Arman) | everything; also a viewer in the Thompson family (family switching) |
-| `imran@heirloom.test` | admin | settings, members, export, activity log |
-| `sana@heirloom.test` | editor | approving the review queue, preferring facts |
-| `zara@heirloom.test` | contributor | her structural edits go to the review queue |
-| `oliver@heirloom.test` | viewer | read-only; admin of the Thompson family |
-| `claire@heirloom.test` | viewer | owner of the second, smaller Thompson family |
+| `owner@heirloom.test` or `+1 408 555 0101` | owner (Arman) | everything; also a viewer in the Thompson family (family switching) |
+| `imran@heirloom.test` or `+1 408 555 0103` | admin | settings, members, export, activity log |
+| `sana@heirloom.test` or `+91 98765 50104` | editor | approving the review queue, preferring facts |
+| `zara@heirloom.test` or `+1 416 555 0102` | contributor | her structural edits go to the review queue |
+| `oliver@heirloom.test` or `+44 7700 900105` | viewer | read-only; admin of the Thompson family |
+| `claire@heirloom.test` or `+44 7700 900106` | viewer | owner of the second, smaller Thompson family |
 
 `DemoFamilySeeder` creates the core Rahman family; `SampleDataSeeder` (also run by `migrate --seed`) adds a fourth generation, albums, documents with transcriptions, an audio recording, interviews in draft/extracted/applied states, answered questions, invitations (pending, expired, accepted), a review queue with history, an audit trail, more conflicting facts, and the second family. To add it to an existing database that only has the demo: `php artisan db:seed --class=SampleDataSeeder`.
 
@@ -83,7 +83,7 @@ Files: `public/manifest.webmanifest`, `public/icons/`, `public/sw.js`, `resource
 
 - **Billing (deferred).** Plans and limits exist but are switched off (`BILLING_ENABLED=false`). Turning them on later needs Stripe Checkout and webhooks; plan switching is currently direct.
 - **Email delivery for invitations.** Links are copy/share for now, e.g. via WhatsApp.
-- **Password reset and email verification.**
+- **Password reset and email/SMS verification.** Accounts can be created with an email address, a mobile number, or both, and either one signs you in; neither is verified yet. Sessions do not expire: users stay signed in until they sign out.
 - **Server-side transcription.** Browsers without the Web Speech API (Firefox, some Safari versions) can record but not transcribe live; a speech-to-text service would close this gap.
 - **Duplicate detection and merging**, especially after a GEDCOM import.
 - **Printed-book fulfilment and poster ordering** (revenue add-ons from §33).
