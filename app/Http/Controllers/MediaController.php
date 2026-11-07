@@ -161,7 +161,7 @@ class MediaController extends Controller
 
         if ($request->boolean('thumb') && $media->isImage() && function_exists('imagecreatefromstring')) {
             $thumb = "thumbs/{$media->family_id}/{$media->id}.jpg";
-            if (! $disk->exists($thumb) && ($img = @imagecreatefromstring($disk->get($media->path)))) {
+            if (! $disk->exists($thumb) && self::fitsInMemory($disk->path($media->path)) && ($img = @imagecreatefromstring($disk->get($media->path)))) {
                 $w = imagesx($img);
                 $h = imagesy($img);
                 $scale = min(1, 480 / max($w, $h));
@@ -178,6 +178,25 @@ class MediaController extends Controller
         return $request->boolean('download')
             ? $disk->download($media->path, $media->original_name)
             : response()->file($disk->path($media->path), ['Content-Type' => $media->mime, 'Cache-Control' => 'private, max-age=86400']);
+    }
+
+    /**
+     * GD decodes the whole bitmap (about 5 bytes per pixel), so a large scan can exceed memory_limit
+     * and turn a thumbnail request into a 500. When it would not fit, the full image is served instead.
+     */
+    private static function fitsInMemory(string $file): bool
+    {
+        $size = @getimagesize($file);
+        if (! $size || ! $size[0] || ! $size[1]) {
+            return false;
+        }
+        $limit = ini_get('memory_limit');
+        if ($limit === false || (int) $limit < 0) {
+            return true;
+        }
+        $bytes = (int) $limit * match (strtolower(substr($limit, -1))) { 'g' => 1073741824, 'm' => 1048576, 'k' => 1024, default => 1 };
+
+        return memory_get_usage() + $size[0] * $size[1] * 5 < $bytes * 0.8;
     }
 
     /** AI photo/document analysis; results are stored as suggestions and shown for confirmation. */
