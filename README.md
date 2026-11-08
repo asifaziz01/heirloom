@@ -69,7 +69,7 @@ Production `.env`:
 | `DB_CONNECTION` + `DB_*` | `mysql` (the default) with the host, port, database name and credentials of a MySQL 8 / MariaDB database created with `utf8mb4`. The schema has no engine-specific features, so Postgres or SQLite work too. |
 | `FILESYSTEM_DISK` | Uploaded files live on the `local` disk under `storage/app/private`, so a single server (or a persistent volume) is required. Keep that directory in backups together with the database. |
 | `LOG_LEVEL` | `warning` or `error`. |
-| `MAIL_MAILER` + `MAIL_*` | `smtp` with the host's own mail server (see *Shared hosting* below). Used for password-reset links and emailed invitations; with `log` those emails only go to the log file. |
+| `MAIL_MAILER` + `MAIL_*` | `mailgun` with `MAILGUN_DOMAIN`, `MAILGUN_SECRET` and, for EU accounts, `MAILGUN_ENDPOINT=api.eu.mailgun.net` (see *Email* below); or `smtp` with the host's own mail server (see *Shared hosting*). Used for password-reset links and emailed invitations; with `log` those emails only go to the log file. |
 | `QUEUE_CONNECTION` | `database` (the default), with a worker or the cron entry above. `DB_QUEUE_RETRY_AFTER=600` keeps a slow job from being handed to a second worker while the first is still on it; the jobs themselves give up after 540 s and two attempts. `sync` only for a host with no cron. |
 | `ANTHROPIC_API_KEY` | Optional; see above. |
 
@@ -80,7 +80,22 @@ Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is c
 1. **PHP.** In the host's PHP selector choose 8.3 with the `gd`, `zip`, `intl`, `fileinfo`, `mbstring`, `pdo_mysql` extensions. In the PHP options (MultiPHP INI editor) set the limits from the block above.
 2. **Files.** Upload the whole project *outside* the web root, e.g. `~/heirloom`, and run `composer install --no-dev --optimize-autoloader` there (over SSH, or run it locally and upload the `vendor/` folder). Make `storage/` and `bootstrap/cache/` writable.
 3. **Web root.** Point the domain's document root at `~/heirloom/public` (cPanel: *Domains* → edit the document root). If the host forces `public_html`, copy the contents of `public/` into it and change the two `require` paths in `public_html/index.php` to `__DIR__.'/../heirloom/vendor/autoload.php'` and `__DIR__.'/../heirloom/bootstrap/app.php'`. The bundled `.htaccess` handles the rewrites on Apache/LiteSpeed.
-4. **Email.** Create a mailbox such as `no-reply@yourdomain.com` in the hosting panel, then in `.env`:
+4. **Email.** Either send through Mailgun (works on any host, no mailbox needed) or through the host's own mail server.
+
+   *Mailgun.* In the Mailgun dashboard add a sending domain such as `mg.yourdomain.com`, add the DNS records it shows (SPF, DKIM, and the MX records if you want replies and bounces handled) and wait until the domain is verified. Then create a **Sending key** for that domain (*Sending* → *Domain settings* → *Sending API keys*) and in `.env`:
+
+   ```ini
+   MAIL_MAILER=mailgun
+   MAILGUN_DOMAIN=mg.yourdomain.com
+   MAILGUN_SECRET=<sending key>
+   MAILGUN_ENDPOINT=api.mailgun.net   ; api.eu.mailgun.net for an EU-region account
+   MAIL_FROM_ADDRESS=no-reply@mg.yourdomain.com
+   MAIL_FROM_NAME="Heirloom"
+   ```
+
+   The from-address must be on the Mailgun domain. A free Mailgun account on the sandbox domain can only email addresses you add as *Authorized Recipients*, so verify a real domain before inviting relatives.
+
+   *The host's mail server.* Create a mailbox such as `no-reply@yourdomain.com` in the hosting panel, then in `.env`:
 
    ```ini
    MAIL_MAILER=smtp
@@ -93,7 +108,7 @@ Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is c
    MAIL_FROM_NAME="Heirloom"
    ```
 
-   Test it with `php artisan tinker --execute="Mail::raw('Heirloom test', fn (\$m) => \$m->to('you@example.com')->subject('Heirloom'));"` and check the inbox (and spam). Most shared hosts require the from-address to be a real mailbox on the same domain.
+   Either way, test it with `php artisan tinker --execute="Mail::raw('Heirloom test', fn (\$m) => \$m->to('you@example.com')->subject('Heirloom'));"` and check the inbox (and spam). Most shared hosts require the from-address to be a real mailbox on the same domain. Mailgun's *Sending* → *Logs* page shows every accepted, delivered and bounced message if nothing arrives.
 5. **Database and app key.** `php artisan key:generate --force` once, then `php artisan migrate --force`. SQLite lives at `database/database.sqlite`; back it up together with `storage/app/private`.
 6. **Settings.** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://yourdomain.com`, `SESSION_SECURE_COOKIE=true`, `QUEUE_CONNECTION=database`, `DB_QUEUE_RETRY_AFTER=600`. `TRUSTED_PROXIES` is only needed if the site sits behind Cloudflare or a similar proxy. Finish with `php artisan optimize`; run it again after every `.env` change.
 7. **Cron (required).** Shared hosts cannot keep a queue worker alive, so a cron job starts one every minute; it processes whatever is waiting and exits when the queue is empty or after 50 seconds (a job already running finishes first). In cPanel's *Cron Jobs* add:

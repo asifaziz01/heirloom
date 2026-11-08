@@ -49,6 +49,13 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
+        'mailgun' => [
+            'transport' => 'mailgun',
+            // 'client' => [
+            //     'timeout' => 5,
+            // ],
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
@@ -82,6 +89,7 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
+                'mailgun',
                 'smtp',
                 'log',
             ],
