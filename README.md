@@ -4,7 +4,7 @@
 
 This is a working MVP of the product described in *Family Heritage SaaS — Market & Gap Analysis* (Oct 2026). It is positioned as a family-owned digital archive, not as another genealogy database. The core thesis from §45 of the report is built in: **complex relationship engine + private family archive + AI memory capture + family collaboration + family legacy outputs.**
 
-Stack: Laravel 13 · PHP 8.3 · SQLite (any Laravel DB works) · Blade + Tailwind 4 + Alpine · Anthropic PHP SDK.
+Stack: Laravel 13 · PHP 8.3 · MySQL 8 (MariaDB/Postgres/SQLite also work) · Blade + Tailwind 4 + Alpine · Anthropic PHP SDK.
 
 For families using the app, see the plain-language [User Guide](docs/USER_GUIDE.md).
 
@@ -66,7 +66,7 @@ Production `.env`:
 | `APP_URL` | The public `https://` address. |
 | `SESSION_SECURE_COOKIE` | `true`, so the session and remember-me cookies are never sent over plain HTTP. |
 | `TRUSTED_PROXIES` | `*` behind a managed load balancer or Cloudflare, or a comma-separated list of proxy IPs/CIDRs. Without it the app sees the proxy's address: secure cookies, `https` detection and per-address rate limiting all key on the wrong client. |
-| `DB_CONNECTION` | SQLite is fine for one server. Use MySQL/MariaDB/Postgres for anything larger; the schema has no SQLite-only features. |
+| `DB_CONNECTION` + `DB_*` | `mysql` (the default) with the host, port, database name and credentials of a MySQL 8 / MariaDB database created with `utf8mb4`. The schema has no engine-specific features, so Postgres or SQLite work too. |
 | `FILESYSTEM_DISK` | Uploaded files live on the `local` disk under `storage/app/private`, so a single server (or a persistent volume) is required. Keep that directory in backups together with the database. |
 | `LOG_LEVEL` | `warning` or `error`. |
 | `MAIL_MAILER` + `MAIL_*` | `smtp` with the host's own mail server (see *Shared hosting* below). Used for password-reset links and emailed invitations; with `log` those emails only go to the log file. |
@@ -75,9 +75,9 @@ Production `.env`:
 
 ### Shared hosting (cPanel, Plesk, Hostinger and similar)
 
-Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is committed, so the server needs no Node; and SQLite plus the `local` disk need no extra services.
+Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is committed, so the server needs no Node; and the `local` disk needs no extra services beyond the host's MySQL/MariaDB database.
 
-1. **PHP.** In the host's PHP selector choose 8.3 with the `gd`, `zip`, `intl`, `fileinfo`, `mbstring`, `pdo_sqlite` (or `pdo_mysql`) extensions. In the PHP options (MultiPHP INI editor) set the limits from the block above.
+1. **PHP.** In the host's PHP selector choose 8.3 with the `gd`, `zip`, `intl`, `fileinfo`, `mbstring`, `pdo_mysql` extensions. In the PHP options (MultiPHP INI editor) set the limits from the block above.
 2. **Files.** Upload the whole project *outside* the web root, e.g. `~/heirloom`, and run `composer install --no-dev --optimize-autoloader` there (over SSH, or run it locally and upload the `vendor/` folder). Make `storage/` and `bootstrap/cache/` writable.
 3. **Web root.** Point the domain's document root at `~/heirloom/public` (cPanel: *Domains* → edit the document root). If the host forces `public_html`, copy the contents of `public/` into it and change the two `require` paths in `public_html/index.php` to `__DIR__.'/../heirloom/vendor/autoload.php'` and `__DIR__.'/../heirloom/bootstrap/app.php'`. The bundled `.htaccess` handles the rewrites on Apache/LiteSpeed.
 4. **Email.** Create a mailbox such as `no-reply@yourdomain.com` in the hosting panel, then in `.env`:
