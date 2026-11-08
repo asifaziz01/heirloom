@@ -144,6 +144,8 @@ Route::prefix('f/{family}')->middleware('family')->scopeBindings()->group(functi
         Route::put('/members/{member}', [InvitationController::class, 'updateMember'])->name('members.update');
         Route::delete('/members/{member}', [InvitationController::class, 'removeMember'])->name('members.destroy');
         Route::get('/activity', [Controllers\ActivityController::class, 'index'])->name('activity.index');
+        Route::get('/qr-code', [Controllers\QrCodeController::class, 'show'])->name('qr.show');
+        Route::get('/qr-code/download', [Controllers\QrCodeController::class, 'download'])->name('qr.download');
         Route::get('/export', [Controllers\ExportController::class, 'index'])->name('export.index');
         Route::get('/export/gedcom', [Controllers\ExportController::class, 'gedcom'])->name('export.gedcom');
         Route::post('/import/gedcom', [Controllers\ExportController::class, 'importGedcom'])->name('import.gedcom');

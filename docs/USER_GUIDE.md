@@ -57,7 +57,7 @@ The menu on the left (or behind the ☰ button on a phone) is grouped into four 
 | Family | Home, Family tree, People, and the "How are we related?" tool |
 | Memories | Stories, Photos & files, Record an elder, Family questions |
 | History | Timeline, Places & migration, Life events, Sources & evidence, Family book |
-| Manage | Review queue, Members & invites, Audit history, Import & export, Settings. Only shown to editors and administrators |
+| Manage | Review queue, Members & invites, Audit history, QR code, Import & export, Settings. Only shown to editors and administrators |
 
 Above the menu is a search box. Type part of a name, a place or a story title and Heirloom finds it, in any language or script the family has used.
 
@@ -126,6 +126,15 @@ Many families have a few people who add content and a great many who only want t
 - Untick the box at any time to make the archive members-only again.
 
 When the site hosts a single open archive, its front page takes visitors straight to it. With several, the front page lists them.
+
+### Sharing the archive with a QR code
+
+Typing a web address is fiddly, especially for older relatives. Admins can instead hand out a QR code: open **Manage → QR code** (or press **Get the QR code** in Settings). Pointing a phone camera at the code opens the family home page.
+
+- Press **Download PNG** for a picture to drop into an invitation, a newsletter or a WhatsApp message. Pick a larger size for posters, or **Download SVG** for a code that stays sharp at any size.
+- Press **Print** for a ready-made poster page with the code, the family's name and the address underneath.
+- Print the code at least 3 cm wide, keep a white margin around it, and scan a printed copy with your own phone before handing it out.
+- The code points at the archive's address, so it keeps working as the archive grows. If the archive is members only, people who scan it are asked to sign in; open the archive to visitors (above) if anyone with the code should be able to look around.
 
 ### The review queue
 
@@ -316,6 +325,7 @@ A quick reference for the things people do most often. The role column shows the
 | Invite a relative | Manage → Members & invites → Create invitation link | Admin |
 | Change someone's role | Manage → Members & invites → pick a role → Save | Admin |
 | Let relatives browse without an account | Manage → Settings → Open the archive to visitors | Admin |
+| Print a QR code that opens the archive | Manage → QR code → Download PNG or Print | Admin |
 | Hide living relatives from viewers and visitors | Manage → Settings | Admin |
 | Delete the whole tree for good | Manage → Settings → Delete this tree | Owner |
 | See who changed what | Manage → Audit history | Admin |

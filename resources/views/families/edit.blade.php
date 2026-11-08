@@ -16,6 +16,13 @@
                 <p class="muted">Share this address with relatives who only want to look: <a class="link break-all" href="{{ route('families.show', $family) }}">{{ route('families.show', $family) }}</a>. Anyone who should add or edit content needs an invitation from the <a class="link" href="{{ route('members.index', $family) }}">Members &amp; invites</a> page.</p>
             </div>
         @endif
+        <div class="card mt-6 flex flex-wrap items-center justify-between gap-3 text-sm">
+            <div>
+                <h2 class="section-title !mb-1">Share with a QR code</h2>
+                <p class="muted">Print a code that opens the family home page when scanned, for invitations, reunion posters or framed photos.</p>
+            </div>
+            <a href="{{ route('qr.show', $family) }}" class="btn">Get the QR code</a>
+        </div>
         <div class="card mt-6 text-sm">
             <h2 class="section-title">Privacy promise</h2>
             <ul class="muted list-disc space-y-1 pl-5">

@@ -25,6 +25,7 @@
         ['review.index', 'Review queue', 'editor'],
         ['members.index', 'Members & invites', 'admin'],
         ['activity.index', 'Audit history', 'admin'],
+        ['qr.show', 'QR code', 'admin'],
         ['export.index', 'Import & export', 'admin'],
         ['families.edit', 'Settings', 'admin'],
     ];
