@@ -1,8 +1,8 @@
 <x-layouts.base title="Preserve your family's story for generations">
 <header class="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
     <div class="flex items-center gap-2">
-        <span class="grid size-9 place-items-center rounded-lg bg-accent font-serif text-lg text-white">H</span>
-        <span class="font-serif text-xl font-semibold">Heirloom</span>
+        <span class="grid size-9 place-items-center rounded-lg bg-accent font-serif text-lg text-white">A</span>
+        <span class="font-serif text-xl font-semibold">Afaq Family</span>
     </div>
     <nav class="flex items-center gap-2">
         <a href="{{ route('login') }}" class="btn">Sign in</a>
@@ -75,5 +75,5 @@
     </div>
 </section>
 @endif
-<footer class="muted border-t border-line py-8 text-center text-sm dark:border-white/10">Heirloom · Your family’s private digital heritage</footer>
+<footer class="muted border-t border-line py-8 text-center text-sm dark:border-white/10">Afaq Family · Your family’s private digital heritage</footer>
 </x-layouts.base>

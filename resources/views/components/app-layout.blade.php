@@ -37,8 +37,8 @@
 <div x-data="{ menu: false }" class="lg:grid lg:grid-cols-[250px_1fr]">
     <aside :class="menu ? 'block' : 'hidden'" class="no-print fixed inset-y-0 left-0 z-40 w-[250px] overflow-y-auto border-r border-line bg-paper px-3 py-4 lg:sticky lg:top-0 lg:block lg:h-screen dark:border-white/10 dark:bg-[#1c1712]">
         <a href="{{ route('families.show', $family) }}" class="mb-1 flex items-center gap-2 px-3">
-            <span class="grid size-8 place-items-center rounded-lg bg-accent font-serif text-white">H</span>
-            <span class="font-serif text-lg font-semibold">Heirloom</span>
+            <span class="grid size-8 place-items-center rounded-lg bg-accent font-serif text-white">A</span>
+            <span class="font-serif text-lg font-semibold">Afaq Family</span>
         </a>
         @auth
             <div class="mb-4 px-3" x-data="{ open: false }">

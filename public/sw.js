@@ -1,11 +1,11 @@
-/* Heirloom service worker.
+/* Afaq Family service worker.
  *
  * Strategy:
  *  - Built assets (/build/*), icons and fonts: cache-first (they are content-hashed).
  *  - Page navigations: network-first, falling back to the cached copy, then to /offline.
  *  - Private family files (/media-file/*), form posts and anything cross-origin are never cached.
  */
-const VERSION = 'heirloom-v1';
+const VERSION = 'afaq-family-v1';
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
 const OFFLINE_URL = '/offline';
