@@ -89,7 +89,7 @@
                     @endif
                 @endforeach
             @endif
-            @if($member->atLeast('editor') || $media->uploaded_by === auth()->id())
+            @if($member->canManage($media->uploaded_by))
                 <form method="POST" action="{{ route('media.destroy', [$family, $media]) }}" onsubmit="return confirm('Delete this file permanently?')">@csrf @method('DELETE')<button class="btn btn-danger btn-sm w-full">Delete file</button></form>
             @endif
         </div>

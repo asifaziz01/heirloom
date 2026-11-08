@@ -20,6 +20,22 @@
     </div>
 </section>
 
+@if(isset($publicFamilies) && $publicFamilies->isNotEmpty())
+<section class="mx-auto max-w-6xl px-5 pb-16">
+    <h2 class="mb-2 text-3xl font-semibold">Browse a family archive</h2>
+    <p class="muted mb-6">These families have opened their archives to visitors. No account is needed to look around.</p>
+    <div class="grid gap-4 md:grid-cols-3">
+        @foreach($publicFamilies as $pf)
+            <a href="{{ route('families.show', $pf) }}" class="card hover:border-accent/50">
+                <div class="font-serif text-xl font-semibold">{{ $pf->name }}</div>
+                @if($pf->description)<p class="muted mt-1 line-clamp-2 text-sm">{{ $pf->description }}</p>@endif
+                <p class="muted mt-2 text-xs">{{ number_format($pf->persons_count) }} {{ Str::plural('person', $pf->persons_count) }}</p>
+            </a>
+        @endforeach
+    </div>
+</section>
+@endif
+
 <section id="how" class="border-y border-line bg-white py-16 dark:border-white/10 dark:bg-white/5">
     <div class="mx-auto grid max-w-6xl gap-8 px-5 md:grid-cols-3">
         @foreach([

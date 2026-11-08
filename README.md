@@ -142,6 +142,7 @@ max_execution_time = 120 ; uploads of many files; AI calls and the archive expor
 | §35 Shareable tree | A 3–6 generation ancestor chart that downloads as SVG with subtle "Created with Heirloom" branding. |
 | §37 Risk 2: low engagement | Dashboard shows upcoming birthdays, anniversaries and remembrance days, "on this day", open family questions, "help complete the archive" (profile completeness), and recent activity. |
 | §37 Risk 4: trust | Private by default. Files are streamed only to members, and admins can make profiles admin-only. A "hide living relatives from viewers" setting and a full audit log with field-level diffs are included. |
+| Open archive | An admin can tick **Open the archive to visitors** in Settings (`families.is_public`). Visitors without an account then browse read-only as a guest viewer (`FamilyMember::guest()` in `ResolveFamily`); every add/edit route stays behind `auth` plus a role, and a visitor who reaches one is sent to sign in. With a single open archive the front page redirects visitors to it. |
 
 ## Install it on a phone
 

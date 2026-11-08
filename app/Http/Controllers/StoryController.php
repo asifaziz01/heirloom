@@ -90,7 +90,7 @@ class StoryController extends Controller
 
     private function authorizeEdit(Story $story): void
     {
-        abort_unless($this->member()->atLeast('editor') || $story->created_by === auth()->id(), 403, 'Only editors or the original author can change this story.');
+        abort_unless($this->member()->canManage($story->created_by), 403, 'Only editors or the original author can change this story.');
     }
 
     private function validated(Request $request, Family $family): array

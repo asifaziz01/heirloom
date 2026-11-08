@@ -13,7 +13,7 @@
                         </div>
                         <div class="flex shrink-0 gap-2">
                             @if($member->atLeast('contributor'))<a href="{{ route('questions.answer', [$family, $q]) }}" class="btn btn-sm btn-primary">Answer</a>@endif
-                            @if($member->atLeast('editor') || $q->asked_by === auth()->id())
+                            @if($member->canManage($q->asked_by))
                                 <form method="POST" action="{{ route('questions.destroy', [$family, $q]) }}">@csrf @method('DELETE')<button class="btn btn-sm">✕</button></form>
                             @endif
                         </div>

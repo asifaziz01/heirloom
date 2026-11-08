@@ -23,7 +23,7 @@
         @endforeach
     </div>
 
-    @if($stats['people'] < 5)
+    @if($stats['people'] < 5 && $member->atLeast('admin'))
         <div class="card mb-6 border-accent/30 bg-accent-soft/50">
             <h2 class="section-title">Getting started</h2>
             <ol class="grid gap-3 text-sm md:grid-cols-4">
@@ -129,14 +129,16 @@
                 </section>
             @endif
 
-            <section class="card">
-                <h2 class="section-title">Recent activity</h2>
-                @forelse($activity as $a)
-                    <p class="py-1 text-sm"><span class="font-medium">{{ $a->user?->name ?? 'System' }}</span> <span class="muted">{{ $a->action }}</span> {{ $a->description }} <span class="muted text-xs">· {{ $a->created_at->diffForHumans() }}</span></p>
-                @empty
-                    <p class="muted text-sm">Nothing yet.</p>
-                @endforelse
-            </section>
+            @unless($member->isGuest())
+                <section class="card">
+                    <h2 class="section-title">Recent activity</h2>
+                    @forelse($activity as $a)
+                        <p class="py-1 text-sm"><span class="font-medium">{{ $a->user?->name ?? 'System' }}</span> <span class="muted">{{ $a->action }}</span> {{ $a->description }} <span class="muted text-xs">· {{ $a->created_at->diffForHumans() }}</span></p>
+                    @empty
+                        <p class="muted text-sm">Nothing yet.</p>
+                    @endforelse
+                </section>
+            @endunless
         </div>
     </div>
 </x-app-layout>

@@ -11,7 +11,7 @@ class Family extends Model
 {
     protected $guarded = [];
 
-    protected $casts = ['hide_living_from_viewers' => 'boolean'];
+    protected $casts = ['hide_living_from_viewers' => 'boolean', 'is_public' => 'boolean'];
 
     public function getRouteKeyName(): string
     {

@@ -62,7 +62,7 @@ class EventController extends Controller
 
     public function destroy(Family $family, Event $event)
     {
-        abort_unless($this->member()->atLeast('editor') || $event->created_by === auth()->id(), 403);
+        abort_unless($this->member()->canManage($event->created_by), 403);
         $event->delete();
 
         return redirect()->route('events.index', $family)->with('status', 'Event deleted.');

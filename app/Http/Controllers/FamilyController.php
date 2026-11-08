@@ -102,8 +102,12 @@ class FamilyController extends Controller
             'description' => 'nullable|string|max:2000',
             'primary_language' => 'required|string|max:8',
             'hide_living_from_viewers' => 'boolean',
+            'is_public' => 'boolean',
         ]);
-        $family->update($data + ['hide_living_from_viewers' => $request->boolean('hide_living_from_viewers')]);
+        $family->update($data + [
+            'hide_living_from_viewers' => $request->boolean('hide_living_from_viewers'),
+            'is_public' => $request->boolean('is_public'),
+        ]);
 
         return back()->with('status', 'Family settings saved.');
     }

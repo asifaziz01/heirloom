@@ -17,7 +17,7 @@ With Heirloom your family can:
 - See where the family has lived and moved on a map, and what happened in each decade on a timeline.
 - Print a family book, download a tree chart, or take a complete copy of everything out whenever you wish.
 
-Everything in Heirloom is private by default. Nothing is public, nothing is sold, and your family owns its archive.
+Everything in Heirloom is private by default. Nothing is sold, and your family owns its archive. If you prefer, an admin can open the archive so that relatives can look around without an account; only members with a role can ever add or change anything.
 
 ## Getting started
 
@@ -114,6 +114,18 @@ Every member has one role. Roles protect the archive from accidental damage whil
 | Owner | The person who created the archive | Everything. There is one owner per archive |
 
 An admin can change anyone's role later from the Members page, and can remove a member. Removing a member does not delete anything they added.
+
+### Letting relatives look without an account
+
+Many families have a few people who add content and a great many who only want to look. Instead of inviting everyone, an admin can open the archive to visitors: in **Manage → Settings**, tick **Open the archive to visitors** and save.
+
+- Anyone who has the address can then browse the home page, tree, people, stories, photos, documents, timeline, places, events, sources, questions and the family book, exactly as a viewer would. Nobody needs to create an account for that.
+- Visitors cannot add or change anything. Every "Add", "Edit" and "Upload" button is hidden for them, and if they open such a page directly they are asked to sign in. Recordings of elders, the review queue, members, settings, the audit history and import and export stay for members only.
+- People who should add photos, stories or relatives still need an account: invite them from **Members & invites** with the role you want them to have.
+- When the archive is open, the **Hide living relatives from viewers and visitors** setting applies to visitors too, so you can show the family's history while keeping living relatives private.
+- Untick the box at any time to make the archive members-only again.
+
+When the site hosts a single open archive, its front page takes visitors straight to it. With several, the front page lists them.
 
 ### The review queue
 
@@ -244,20 +256,20 @@ Heirloom's promise is simple: the archive is private, the family owns it, and yo
 
 ### Who can see the archive
 
-- Only people who have been invited and have joined the family archive can see anything in it. There are no public pages, no search-engine listings, and no sharing with strangers.
-- Photos, documents and recordings are only ever shown to signed-in members of that family. A link to a file does not work for anyone else.
+- Unless an admin has opened the archive to visitors, only people who have been invited and have joined the family archive can see anything in it. There are no search-engine listings and no sharing with strangers.
+- Photos, documents and recordings are only shown to signed-in members of that family (or to everyone, while the archive is open to visitors). Interview recordings are never shown to visitors.
 - Nothing is sold, and there is no advertising.
 
 ### Extra protection for living relatives
 
 Two settings help families that want to be careful about the living:
 
-- **Hide living relatives from viewers.** In **Settings**, an admin can tick this box. People with the viewer role then only see the profiles of relatives who have passed away. Contributors and above still see everyone.
+- **Hide living relatives from viewers and visitors.** In **Settings**, an admin can tick this box. People with the viewer role, and visitors without an account, then only see the profiles of relatives who have passed away. Contributors and above still see everyone.
 - **Administrators only** on a profile. When editing a person, an admin can set *Who can see this profile* to administrators only. Use this for a sensitive branch of the family or for someone who has asked not to be visible.
 
 ### Every change is recorded
 
-Admins can open **Audit history** to see every change ever made to the archive: who made it, when, and exactly what changed, field by field. If something looks wrong, this is where to find out what happened. The home page shows the most recent activity to everyone.
+Admins can open **Audit history** to see every change ever made to the archive: who made it, when, and exactly what changed, field by field. If something looks wrong, this is where to find out what happened. The home page shows the most recent activity to every member (visitors without an account do not see it).
 
 ### Taking your data out
 
@@ -303,7 +315,8 @@ A quick reference for the things people do most often. The role column shows the
 | Approve relatives' additions | Manage → Review queue | Editor |
 | Invite a relative | Manage → Members & invites → Create invitation link | Admin |
 | Change someone's role | Manage → Members & invites → pick a role → Save | Admin |
-| Hide living relatives from viewers | Manage → Settings | Admin |
+| Let relatives browse without an account | Manage → Settings → Open the archive to visitors | Admin |
+| Hide living relatives from viewers and visitors | Manage → Settings | Admin |
 | Delete the whole tree for good | Manage → Settings → Delete this tree | Owner |
 | See who changed what | Manage → Audit history | Admin |
 | Download everything | Manage → Import & export → Prepare complete archive, then Download | Admin |

@@ -50,7 +50,7 @@ class QuestionController extends Controller
 
     public function destroy(Family $family, Question $question)
     {
-        abort_unless($this->member()->atLeast('editor') || $question->asked_by === auth()->id(), 403);
+        abort_unless($this->member()->canManage($question->asked_by), 403);
         $question->delete();
 
         return back()->with('status', 'Question removed.');

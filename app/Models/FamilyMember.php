@@ -19,6 +19,24 @@ class FamilyMember extends Model
 
     protected $guarded = [];
 
+    /**
+     * A visitor browsing a public archive without an account (or a signed-in user who is
+     * not a member). Never saved: it only carries the viewer role so that every
+     * "$member->atLeast(...)" check in controllers and views answers correctly.
+     */
+    public static function guest(Family $family): self
+    {
+        $member = new self(['role' => 'viewer', 'family_id' => $family->id]);
+        $member->setRelation('family', $family);
+
+        return $member;
+    }
+
+    public function isGuest(): bool
+    {
+        return ! $this->exists;
+    }
+
     public function family(): BelongsTo
     {
         return $this->belongsTo(Family::class);
@@ -37,6 +55,15 @@ class FamilyMember extends Model
     public function atLeast(string $role): bool
     {
         return self::ROLES[$this->role] >= self::ROLES[$role];
+    }
+
+    /**
+     * Editors and above can change anything; others only what they created themselves.
+     * Guests never own anything, even records whose creator was deleted (created_by = null).
+     */
+    public function canManage(?int $createdBy): bool
+    {
+        return $this->atLeast('editor') || ($this->user_id !== null && $createdBy === $this->user_id);
     }
 
     /** Editors and above write directly; contributors' structural edits go to review. */

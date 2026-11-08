@@ -10,7 +10,7 @@
         'Memories' => [
             ['stories.index', 'Stories', 'M4 5h16v14H4zM8 9h8M8 13h5'],
             ['media.index', 'Photos & files', 'M4 6h16v12H4zM8 14l3-3 5 5'],
-            ['interviews.index', 'Record an elder', 'M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3m-7 8a7 7 0 0 0 14 0M12 18v3'],
+            ['interviews.index', 'Record an elder', 'M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3m-7 8a7 7 0 0 0 14 0M12 18v3', 'contributor'],
             ['questions.index', 'Family questions', 'M9 9a3 3 0 1 1 3 3v2m0 4h.01'],
         ],
         'History' => [
@@ -40,24 +40,32 @@
             <span class="grid size-8 place-items-center rounded-lg bg-accent font-serif text-white">H</span>
             <span class="font-serif text-lg font-semibold">Heirloom</span>
         </a>
-        <div class="mb-4 px-3" x-data="{ open: false }">
-            <button @click="open = !open" class="mt-2 flex w-full items-center justify-between rounded-lg border border-line px-2.5 py-1.5 text-left text-sm dark:border-white/10">
-                <span class="truncate">{{ $family->name }}</span><span class="muted">▾</span>
-            </button>
-            <div x-show="open" x-cloak @click.outside="open = false" class="card mt-1 p-1">
-                @foreach(auth()->user()->families as $f)
-                    <a href="{{ route('families.show', $f) }}" class="nav-link {{ $f->id === $family->id ? 'active' : '' }}">{{ $f->name }}</a>
-                @endforeach
-                <a href="{{ route('families.create') }}" class="nav-link">+ New family archive</a>
+        @auth
+            <div class="mb-4 px-3" x-data="{ open: false }">
+                <button @click="open = !open" class="mt-2 flex w-full items-center justify-between rounded-lg border border-line px-2.5 py-1.5 text-left text-sm dark:border-white/10">
+                    <span class="truncate">{{ $family->name }}</span><span class="muted">▾</span>
+                </button>
+                <div x-show="open" x-cloak @click.outside="open = false" class="card mt-1 p-1">
+                    @foreach(auth()->user()->families as $f)
+                        <a href="{{ route('families.show', $f) }}" class="nav-link {{ $f->id === $family->id ? 'active' : '' }}">{{ $f->name }}</a>
+                    @endforeach
+                    <a href="{{ route('families.create') }}" class="nav-link">+ New family archive</a>
+                </div>
             </div>
-        </div>
+        @else
+            <div class="mb-4 px-3">
+                <div class="mt-2 truncate rounded-lg border border-line px-2.5 py-1.5 text-sm dark:border-white/10">{{ $family->name }}</div>
+            </div>
+        @endauth
         <form action="{{ route('search', $family) }}" class="mb-4 px-3">
             <input name="q" value="{{ request('q') }}" placeholder="Search people, stories…" class="input">
         </form>
         @foreach($nav as $section => $links)
             <div class="mb-4">
                 <div class="mb-1 px-3 text-[11px] font-semibold tracking-wider text-stone-400 uppercase">{{ $section }}</div>
-                @foreach($links as [$route, $label, $icon])
+                @foreach($links as $link)
+                    @php [$route, $label, $icon] = $link; @endphp
+                    @continue(isset($link[3]) && ! $member->atLeast($link[3]))
                     <a href="{{ route($route, $family) }}" class="nav-link {{ request()->routeIs(str_replace('.index', '.*', $route)) ? 'active' : '' }}">
                         <svg class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="{{ $icon }}"/></svg>
                         {{ $label }}
@@ -79,12 +87,22 @@
             </div>
         @endif
         <div class="mt-6 border-t border-line px-3 pt-4 text-sm dark:border-white/10">
-            <div class="font-medium">{{ auth()->user()->name }}</div>
-            <div class="muted text-xs capitalize">{{ $member->role }}{{ config('services.heritage.billing') ? ' · '.config('plans.'.$family->plan.'.name').' plan' : '' }}</div>
-            <div class="mt-3 flex gap-2">
-                <button type="button" @click="$store.theme.toggle()" class="btn btn-sm" x-text="$store.theme.dark ? 'Light' : 'Dark'">Theme</button>
-                <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-sm">Sign out</button></form>
-            </div>
+            @auth
+                <div class="font-medium">{{ auth()->user()->name }}</div>
+                <div class="muted text-xs capitalize">{{ $member->isGuest() ? 'Visitor' : $member->role }}{{ config('services.heritage.billing') ? ' · '.config('plans.'.$family->plan.'.name').' plan' : '' }}</div>
+                @if($member->isGuest())<p class="muted mt-1 text-xs">You are browsing as a visitor. Ask a family admin for an invitation to add or edit content.</p>@endif
+                <div class="mt-3 flex gap-2">
+                    <button type="button" @click="$store.theme.toggle()" class="btn btn-sm" x-text="$store.theme.dark ? 'Light' : 'Dark'">Theme</button>
+                    <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-sm">Sign out</button></form>
+                </div>
+            @else
+                <div class="font-medium">Browsing as a visitor</div>
+                <p class="muted mt-1 text-xs">Family members sign in to add photos, stories and people.</p>
+                <div class="mt-3 flex gap-2">
+                    <button type="button" @click="$store.theme.toggle()" class="btn btn-sm" x-text="$store.theme.dark ? 'Light' : 'Dark'">Theme</button>
+                    <a href="{{ route('login') }}" class="btn btn-sm btn-primary">Sign in</a>
+                </div>
+            @endauth
             <template x-if="$store.pwa.canInstall">
                 <div class="mt-3">
                     <button type="button" @click="$store.pwa.install()" class="btn btn-sm w-full border-accent/40 text-accent">

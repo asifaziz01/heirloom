@@ -20,7 +20,7 @@
             <div class="sm:col-span-2"><label class="label">What happened</label><textarea name="description" rows="4" class="input" dir="auto">{{ old('description', $event->description) }}</textarea></div>
             <div class="flex gap-2 sm:col-span-2"><button class="btn btn-primary">Save</button><a href="{{ url()->previous() }}" class="btn">Cancel</a></div>
         </form>
-        @if($event->exists && ($member->atLeast('editor') || $event->created_by === auth()->id()))
+        @if($event->exists && $member->canManage($event->created_by))
             <form method="POST" action="{{ route('events.destroy', [$family, $event]) }}" class="mt-3" onsubmit="return confirm('Delete this event?')">@csrf @method('DELETE')<button class="btn btn-danger btn-sm">Delete event</button></form>
         @endif
     </div>

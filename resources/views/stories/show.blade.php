@@ -18,7 +18,7 @@
                 <div class="grid gap-2 sm:grid-cols-2">@foreach($story->people as $p)<x-person-card :person="$p" />@endforeach</div>
             </div>
         @endif
-        @if($member->atLeast('editor') || $story->created_by === auth()->id())
+        @if($member->canManage($story->created_by))
             <div class="mt-6 flex gap-2">
                 <a href="{{ route('stories.edit', [$family, $story]) }}" class="btn btn-sm">Edit</a>
                 <form method="POST" action="{{ route('stories.destroy', [$family, $story]) }}" onsubmit="return confirm('Delete this story?')">@csrf @method('DELETE')<button class="btn btn-sm btn-danger">Delete</button></form>

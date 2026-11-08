@@ -6,14 +6,21 @@
             <div><label class="label">Family name</label><input name="name" value="{{ old('name', $family->name) }}" required class="input"></div>
             <div><label class="label">About</label><textarea name="description" rows="3" class="input">{{ old('description', $family->description) }}</textarea></div>
             <div><label class="label">Main language</label><select name="primary_language" class="input">@foreach(\App\Models\PersonName::LANGUAGES as $v => $l)<option value="{{ $v }}" @selected($family->primary_language === $v)>{{ $l }}</option>@endforeach</select></div>
-            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="hide_living_from_viewers" value="1" @checked($family->hide_living_from_viewers) class="mt-1"> <span><strong>Hide living relatives from viewers.</strong> People with the viewer role only see profiles of those who have passed away.</span></label>
+            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="is_public" value="1" @checked($family->is_public) class="mt-1"> <span><strong>Open the archive to visitors.</strong> Anyone with the link can browse the tree, people, stories, photos, timeline and places without signing in. Adding or changing anything still needs an account and a role in this family.</span></label>
+            <label class="flex items-start gap-2 text-sm"><input type="checkbox" name="hide_living_from_viewers" value="1" @checked($family->hide_living_from_viewers) class="mt-1"> <span><strong>Hide living relatives from viewers and visitors.</strong> People with the viewer role, and visitors without an account, only see profiles of those who have passed away.</span></label>
             <button class="btn btn-primary">Save settings</button>
         </form>
+        @if($family->is_public)
+            <div class="card mt-6 border-accent/30 bg-accent-soft/50 text-sm">
+                <h2 class="section-title">This archive is open to visitors</h2>
+                <p class="muted">Share this address with relatives who only want to look: <a class="link break-all" href="{{ route('families.show', $family) }}">{{ route('families.show', $family) }}</a>. Anyone who should add or edit content needs an invitation from the <a class="link" href="{{ route('members.index', $family) }}">Members &amp; invites</a> page.</p>
+            </div>
+        @endif
         <div class="card mt-6 text-sm">
             <h2 class="section-title">Privacy promise</h2>
             <ul class="muted list-disc space-y-1 pl-5">
-                <li>The archive is private by default. Only invited members can see it.</li>
-                <li>Files are served only to signed-in members of this family.</li>
+                <li>The archive is private by default. Only invited members can see it, unless an admin opens it to visitors above.</li>
+                <li>Files are served only to signed-in members of this family (or to everyone, while the archive is open to visitors).</li>
                 <li>No advertising, and personal data is never sold.</li>
                 <li>Every change is recorded in the audit history.</li>
                 <li>The complete archive can be exported at any time.</li>

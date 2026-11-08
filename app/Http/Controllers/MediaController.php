@@ -7,6 +7,7 @@ use App\Models\Family;
 use App\Models\Media;
 use App\Services\PlaceResolver;
 use App\Support\PartialDate;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -142,7 +143,7 @@ class MediaController extends Controller
 
     public function destroy(Family $family, Media $media)
     {
-        abort_unless($this->member()->atLeast('editor') || $media->uploaded_by === auth()->id(), 403);
+        abort_unless($this->member()->canManage($media->uploaded_by), 403);
         Storage::disk('local')->delete($media->path);
         $family->decrement('storage_used', min($media->size, $family->storage_used));
         $family->persons()->where('photo_media_id', $media->id)->update(['photo_media_id' => null]);
@@ -151,10 +152,16 @@ class MediaController extends Controller
         return redirect()->route('media.index', $family)->with('status', 'File deleted.');
     }
 
-    /** Streams a private file to family members only. ?thumb=1 serves a cached 480px JPEG for photos. */
+    /**
+     * Streams a file to family members, and to anyone when the archive is open to visitors.
+     * ?thumb=1 serves a cached 480px JPEG for photos.
+     */
     public function file(Request $request, Media $media)
     {
-        abort_unless($request->user()->membershipIn($media->family_id), 403);
+        if (! $media->family->is_public) {
+            throw_unless($request->user(), AuthenticationException::class);
+            abort_unless($request->user()->membershipIn($media->family_id), 403);
+        }
         $disk = Storage::disk('local');
         abort_unless($disk->exists($media->path), 404);
 
