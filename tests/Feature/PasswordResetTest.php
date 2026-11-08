@@ -6,7 +6,11 @@ use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use Symfony\Component\Mailer\Exception\TransportException;
+use Symfony\Component\Mailer\SentMessage;
+use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -38,6 +42,33 @@ class PasswordResetTest extends TestCase
         $this->assertTrue(Hash::check('new-secret-9', $user->fresh()->password));
         $this->post('/login', ['login' => 'asif@example.com', 'password' => 'new-secret-9'])->assertRedirect('/');
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_a_mail_failure_shows_a_message_instead_of_an_error_page_and_allows_a_retry(): void
+    {
+        $user = User::factory()->create(['email' => 'asif@example.com']);
+        Mail::extend('failing', fn () => new class extends AbstractTransport
+        {
+            protected function doSend(SentMessage $message): void
+            {
+                throw new TransportException('Unable to send an email: Forbidden (code 401).');
+            }
+
+            public function __toString(): string
+            {
+                return 'failing://';
+            }
+        });
+        config(['mail.default' => 'failing', 'mail.mailers.failing' => ['transport' => 'failing']]);
+
+        $this->post('/forgot-password', ['email' => 'asif@example.com'])
+            ->assertRedirect()->assertSessionHasErrors('email')->assertSessionMissing('status');
+        $this->assertDatabaseMissing('password_reset_tokens', ['email' => 'asif@example.com']);
+
+        // Once the mailer works again the user is not told to wait for the throttle to expire.
+        Notification::fake();
+        $this->post('/forgot-password', ['email' => 'asif@example.com'])->assertRedirect()->assertSessionHas('status');
+        Notification::assertSentTo($user, ResetPassword::class);
     }
 
     public function test_unknown_addresses_get_the_same_message_and_bad_tokens_are_rejected(): void

@@ -38,7 +38,7 @@ Demo logins (seeded, local only, password is `password` for all):
 | `ANTHROPIC_MODEL` | Defaults to `claude-opus-5-5`. |
 | `BILLING_ENABLED` | Default `false`: no pricing, plans or limits anywhere, and every feature is available. Set `true` to turn on plan limits, feature gates, the Plan page and landing-page pricing. |
 
-Tests: `php vendor/bin/phpunit` (35 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits, sign-in and rate limiting, password reset, invitation email, family deletion, queued AI and export jobs).
+Tests: `php vendor/bin/phpunit` (49 tests: page smoke test, governance, permissions, privacy, relationship labels, GEDCOM round-trip, archive export, plan limits, sign-in and rate limiting, password reset, invitation email, family deletion, queued AI and export jobs).
 
 ## Deploy it
 
@@ -109,6 +109,8 @@ Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is c
    ```
 
    Either way, test it with `php artisan tinker --execute="Mail::raw('Heirloom test', fn (\$m) => \$m->to('you@example.com')->subject('Heirloom'));"` and check the inbox (and spam). Most shared hosts require the from-address to be a real mailbox on the same domain. Mailgun's *Sending* → *Logs* page shows every accepted, delivered and bounced message if nothing arrives.
+
+   If the forgot-password form or an invitation says the email could not be sent, the reason is in `storage/logs/laravel.log`. The usual ones: `404 page not found` means `MAILGUN_DOMAIN` is empty or wrong; `Forbidden (code 401)` means `MAILGUN_SECRET` is wrong, or is a key for another domain or region (check `MAILGUN_ENDPOINT`); `User is not set` means `MAILGUN_SECRET` is empty; `Class ... MailgunTransportFactory not found` means `composer install` was not re-run after deploying. After any `.env` change run `php artisan optimize` again, otherwise the cached config keeps the old values.
 5. **Database and app key.** `php artisan key:generate --force` once, then `php artisan migrate --force`. SQLite lives at `database/database.sqlite`; back it up together with `storage/app/private`.
 6. **Settings.** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://yourdomain.com`, `SESSION_SECURE_COOKIE=true`, `QUEUE_CONNECTION=database`, `DB_QUEUE_RETRY_AFTER=600`. `TRUSTED_PROXIES` is only needed if the site sits behind Cloudflare or a similar proxy. Finish with `php artisan optimize`; run it again after every `.env` change.
 7. **Cron (required).** Shared hosts cannot keep a queue worker alive, so a cron job starts one every minute; it processes whatever is waiting and exits when the queue is empty or after 50 seconds (a job already running finishes first). In cPanel's *Cron Jobs* add:

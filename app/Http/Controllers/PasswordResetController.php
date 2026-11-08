@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password as PasswordRule;
+use Symfony\Component\Mailer\Exception\ExceptionInterface as MailerException;
 
 /**
  * Password reset by email, using Laravel's password broker and the configured mailer.
@@ -25,7 +26,21 @@ class PasswordResetController extends Controller
             'email.email' => 'Enter the email address on your account. Accounts with only a mobile number cannot reset a password yet.',
         ]);
 
-        $status = Password::sendResetLink(['email' => mb_strtolower(trim($data['email']))]);
+        $credentials = ['email' => mb_strtolower(trim($data['email']))];
+        try {
+            $status = Password::sendResetLink($credentials);
+        } catch (MailerException $e) {
+            // The mailer is misconfigured or unreachable (e.g. missing or wrong MAILGUN_* keys). Log it for the
+            // operator, drop the token that was already stored so a retry is not throttled, and tell the user.
+            report($e);
+            if ($user = Password::broker()->getUser($credentials)) {
+                Password::broker()->deleteToken($user);
+            }
+
+            return back()->withInput()->withErrors([
+                'email' => 'The reset email could not be sent right now. Please try again in a few minutes, or ask a family administrator for help.',
+            ]);
+        }
         if ($status === Password::RESET_THROTTLED) {
             return back()->withInput()->withErrors(['email' => __($status)]);
         }
