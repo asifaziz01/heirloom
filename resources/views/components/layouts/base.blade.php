@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
     <script>
         try {
             const t = localStorage.getItem('theme');
@@ -28,6 +28,7 @@
 </head>
 <body class="min-h-screen font-sans">
     {{ $slot }}
+    <x-install-guide />
     @stack('scripts')
 </body>
 </html>

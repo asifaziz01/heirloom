@@ -14,9 +14,12 @@
     <p class="badge mb-5">Private family heritage platform</p>
     <h1 class="max-w-3xl text-4xl leading-tight font-semibold md:text-6xl">Preserve your family’s story for generations.</h1>
     <p class="muted mt-6 max-w-2xl text-lg leading-relaxed">Build your family tree, collect photographs and documents, record the stories only your elders know, and create a private archive your grandchildren will inherit.</p>
-    <div class="mt-8 flex flex-wrap gap-3">
+    <div x-data class="mt-8 flex flex-wrap gap-3">
         <a href="{{ route('register') }}" class="btn btn-primary px-5 py-2.5 text-base">Start your family archive</a>
         <a href="#how" class="btn px-5 py-2.5 text-base">How it works</a>
+        <template x-if="$store.pwa.canInstall">
+            <button type="button" @click="$store.pwa.install()" class="btn px-5 py-2.5 text-base">Install the app</button>
+        </template>
     </div>
 </section>
 

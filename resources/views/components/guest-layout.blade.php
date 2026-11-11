@@ -17,7 +17,6 @@
         <template x-if="$store.pwa.canInstall">
             <div class="mt-4 text-center">
                 <button type="button" @click="$store.pwa.install()" class="btn btn-sm">Install Afaq Family on this device</button>
-                <p x-show="$store.pwa.showIosHelp" x-cloak class="muted mt-2 text-xs">In Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</p>
             </div>
         </template>
     </div>
