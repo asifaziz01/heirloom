@@ -54,7 +54,7 @@ The menu on the left (or behind the ☰ button on a phone) is grouped into four 
 
 | Menu area | What you will find there |
 | --- | --- |
-| Family | Home, Family tree, People, and the "How are we related?" tool |
+| Family | Home, Family tree, People, Occasions & reminders, and the "How are we related?" tool |
 | Memories | Stories, Photos & files, Record an elder, Family questions |
 | History | Timeline, Places & migration, Life events, Sources & evidence, Family book |
 | Manage | Review queue, Members & invites, Audit history, QR code, Import & export, Settings. Only shown to editors and administrators |
@@ -83,7 +83,7 @@ The home page then shows a short checklist: add your parents and partner, import
 The home page is the family noticeboard. It shows:
 
 - Counts of people, photos, stories, documents and places, each one a shortcut.
-- **Coming up**: birthdays, wedding anniversaries and remembrance days in the next 30 days.
+- **Coming up**: birthdays, wedding anniversaries, remembrance days and planned occasions in the next 30 days (see *Occasions & reminders*).
 - **On this day**: things that happened in the family on today's date in past years.
 - The latest stories and photos.
 - **Questions for the family** that nobody has answered yet.
@@ -237,6 +237,29 @@ If the AI helper is off, you can still save the transcript and write it up as a 
 
 Births, marriages and deaths are recorded on profiles. Everything else in a life goes under **Life events**: a move to another city, schooling, a job, military service, a religious ceremony, an award, an illness, a celebration. Each event has a date (a year is enough), a place, and the people involved. Moves can record both where from and where to, which is what draws the migration map. Events make the timeline and each person's life timeline come alive.
 
+Life events look back. For things the family is planning, use *Occasions* below.
+
+### Occasions & reminders
+
+**Occasions** are what the family is looking forward to: a wedding, an engagement, a milestone anniversary dinner, a graduation, a housewarming, a reunion, a festival everyone gathers for, or a death anniversary observed every year. Find them under **Family → Occasions & reminders**.
+
+**Adding one** (contributors and above): give it a kind, a title, the date (and last day if it runs over several days), an optional time, the city and the venue or address, who it is for, and any details such as the programme or where to stay. Tick **Repeats every year** for an annual gathering or a remembrance day. The moment it is saved, every member who has reminder emails on receives an email with the details and a button to reply.
+
+**Replying (RSVP).** Signed-in members say whether they are going, maybe, or can't make it, how many extra guests they are bringing and a short note. The occasion page shows the headcount and who has replied. Visitors browsing a public archive can see occasions but cannot reply. The person organising can turn RSVPs off for an occasion where they make no sense, such as a remembrance.
+
+**Sharing.** Each occasion has **Share on WhatsApp**, **Copy link** and **Add to my calendar** buttons.
+
+**Reminder emails.** Members with an email address receive:
+
+- an email when a new occasion is added;
+- for each occasion, an email a week before, the day before and on the morning of the day (the organiser can switch this off per occasion);
+- the day before and on the day of every birthday of a living relative, wedding anniversary of a couple still together, and death anniversary, taken straight from the dates on profiles, bundled into one email per day;
+- a Monday digest of everything in the coming week.
+
+Everyone sees only what their role allows (private profiles and, where the setting is on, living people stay hidden from viewers). Any member can turn these emails off or on for a family from the **Reminders** box on the Occasions page, and every email ends with a one-click link to stop them.
+
+**On your phone's calendar.** The Occasions page offers a **.ics download** and, for members, a personal **subscription link**. Paste the link into Google Calendar (*Other calendars → From URL*), Apple Calendar (*File → New Calendar Subscription*) or Outlook (*Add calendar → Subscribe from web*) and every occasion, birthday and anniversary appears in your own calendar with its alerts, updating by itself as the archive changes. The link is personal: it shows what you are allowed to see, so do not forward it.
+
 ## History: timeline, places and the family book
 
 Once people, dates and memories are in, Heirloom puts them together into views of the family's past that nobody had to draw.
@@ -319,6 +342,10 @@ A quick reference for the things people do most often. The role column shows the
 | Add a new relative | Open a relative's profile → Add → their parent / child / partner / sibling | Contributor (reviewed) |
 | Correct someone's details | Open their profile → Edit | Contributor (reviewed) |
 | Record a move, job, school or ceremony | History → Life events → Add event | Contributor |
+| Announce a wedding, reunion or anniversary and collect replies | Family → Occasions & reminders → Add an occasion | Contributor |
+| Say whether you are coming to an occasion | Open the occasion → Are you coming? | Any member |
+| Stop or restart reminder emails | Family → Occasions & reminders → Reminders | Any member |
+| Put family dates on your phone's calendar | Family → Occasions & reminders → Copy subscription link | Any member |
 | Note a disputed birth date with its source | Open the profile → Facts & sources → Record a fact | Contributor |
 | Choose which version of a fact is shown | Open the profile → Facts & sources → Show this value on the profile | Editor |
 | Approve relatives' additions | Manage → Review queue | Editor |
@@ -390,6 +417,8 @@ A quick reference for the things people do most often. The role column shows the
 | Family question | Something someone has asked the whole family; the answer becomes a story |
 | Interview | A recorded conversation with a relative, with its transcript and anything the AI helper suggested from it |
 | Life event | Anything dated in a person's life other than birth, marriage and death: a move, a job, schooling, a ceremony |
+| Occasion | Something the family is planning or observes each year: a wedding, a reunion, a death anniversary. Takes replies and sends reminders |
+| RSVP | A member's reply to an occasion: going, maybe or can't make it, with the number of extra guests |
 | Album | A named group of photos and files, such as a wedding or a trip |
 | Tag | Marking which people are in a photo, story or event, so it appears on their profiles |
 | Pedigree chart | The classic ancestor chart: a person, their parents, grandparents and so on |

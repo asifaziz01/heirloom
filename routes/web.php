@@ -36,6 +36,11 @@ Route::middleware('auth')->group(function () {
 // Served to members, and to anyone when the archive is open to visitors (checked in the controller).
 Route::get('/media-file/{media}', [Controllers\MediaController::class, 'file'])->name('media.file');
 
+// Reminder emails: a personal calendar feed (the token is the member's secret) and the
+// signed "stop emailing me" link at the foot of every reminder. Neither needs a session.
+Route::get('/calendar/{token}.ics', [Controllers\CalendarController::class, 'feed'])->name('calendar.feed')->where('token', '[A-Za-z0-9]{40}');
+Route::get('/reminders/{member}/unsubscribe', [Controllers\ReminderController::class, 'unsubscribe'])->middleware('signed')->name('reminders.unsubscribe');
+
 // Browsing an archive: members always; visitors without an account when the family is public.
 // Everything that adds or changes content sits in the role-gated groups below and requires an account.
 Route::prefix('f/{family}')->middleware('family')->scopeBindings()->group(function () {
@@ -57,6 +62,17 @@ Route::prefix('f/{family}')->middleware('family')->scopeBindings()->group(functi
     Route::get('/stories', [Controllers\StoryController::class, 'index'])->name('stories.index');
     Route::get('/stories/{story}', [Controllers\StoryController::class, 'show'])->name('stories.show')->whereNumber('story');
     Route::get('/events', [Controllers\EventController::class, 'index'])->name('events.index');
+
+    // Occasions: what the family is planning, with RSVPs, reminders and a calendar feed
+    Route::get('/occasions', [Controllers\OccasionController::class, 'index'])->name('occasions.index');
+    Route::get('/occasions/{occasion}', [Controllers\OccasionController::class, 'show'])->name('occasions.show')->whereNumber('occasion');
+    Route::get('/occasions/{occasion}.ics', [Controllers\CalendarController::class, 'occasion'])->name('calendar.occasion')->whereNumber('occasion');
+    Route::get('/calendar.ics', [Controllers\CalendarController::class, 'download'])->name('calendar.download');
+    Route::middleware('auth')->group(function () {
+        Route::post('/occasions/{occasion}/rsvp', [Controllers\OccasionController::class, 'rsvp'])->name('occasions.rsvp');
+        Route::put('/reminders', [Controllers\ReminderController::class, 'update'])->name('reminders.update');
+    });
+
     Route::get('/media', [Controllers\MediaController::class, 'index'])->name('media.index');
     Route::get('/media/{media}', [Controllers\MediaController::class, 'show'])->name('media.show')->whereNumber('media');
     Route::get('/albums/{album}', [Controllers\AlbumController::class, 'show'])->name('albums.show');
@@ -92,6 +108,12 @@ Route::prefix('f/{family}')->middleware('family')->scopeBindings()->group(functi
         Route::get('/events/{event}/edit', [Controllers\EventController::class, 'edit'])->name('events.edit');
         Route::put('/events/{event}', [Controllers\EventController::class, 'update'])->name('events.update');
         Route::delete('/events/{event}', [Controllers\EventController::class, 'destroy'])->name('events.destroy');
+
+        Route::get('/occasions/create', [Controllers\OccasionController::class, 'create'])->name('occasions.create');
+        Route::post('/occasions', [Controllers\OccasionController::class, 'store'])->name('occasions.store');
+        Route::get('/occasions/{occasion}/edit', [Controllers\OccasionController::class, 'edit'])->name('occasions.edit');
+        Route::put('/occasions/{occasion}', [Controllers\OccasionController::class, 'update'])->name('occasions.update');
+        Route::delete('/occasions/{occasion}', [Controllers\OccasionController::class, 'destroy'])->name('occasions.destroy');
 
         Route::get('/upload', [Controllers\MediaController::class, 'create'])->name('media.create');
         Route::post('/media', [Controllers\MediaController::class, 'store'])->name('media.store');

@@ -45,7 +45,7 @@
             @endif
 
             <section class="card">
-                <h2 class="section-title">Coming up <span class="muted font-sans text-xs font-normal">next 30 days</span></h2>
+                <h2 class="section-title">Coming up <span class="muted font-sans text-xs font-normal">next 30 days</span> <a href="{{ route('occasions.index', $family) }}" class="link ml-auto font-sans text-sm font-normal">Occasions & reminders</a></h2>
                 @forelse($upcoming as $u)
                     <div class="flex items-center gap-3 border-b border-line py-2 last:border-0 dark:border-white/10">
                         <div class="w-14 shrink-0 text-center">
@@ -53,7 +53,10 @@
                             <div class="font-serif text-xl font-semibold leading-none">{{ $u['when']->format('j') }}</div>
                         </div>
                         <div class="min-w-0 text-sm">
-                            @if($u['type'] === 'birthday')
+                            @if($u['type'] === 'occasion')
+                                {{ $u['occasion']->icon() }} <a class="link font-semibold" href="{{ route('occasions.show', [$family, $u['occasion']]) }}">{{ $u['occasion']->title }}</a>@if($u['years']) — {{ \App\Models\Occasion::ordinal($u['years']) }} time @endif
+                                @if($u['occasion']->whereLabel())<span class="muted">· {{ $u['occasion']->whereLabel() }}</span>@endif
+                            @elseif($u['type'] === 'birthday')
                                 🎂 <a class="link font-semibold" href="{{ route('people.show', [$family, $u['person']]) }}">{{ $u['person']->full_name }}</a> turns {{ $u['years'] }}
                             @elseif($u['type'] === 'anniversary')
                                 💍 {{ $u['partnership']->partner1?->given_name }} & {{ $u['partnership']->partner2?->given_name }} — {{ $u['years'] }} years together
@@ -64,7 +67,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="muted text-sm">No birthdays or anniversaries in the next month. Add full birth dates and wedding dates to get reminders here.</p>
+                    <p class="muted text-sm">Nothing in the next month. Full birth and wedding dates on profiles show up here, and so does anything the family plans under <a class="link" href="{{ route('occasions.index', $family) }}">Occasions</a>.</p>
                 @endforelse
             </section>
 

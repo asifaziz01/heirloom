@@ -58,6 +58,14 @@ php artisan optimize                  # caches config, routes, views and events
 - Shared hosting, or anywhere without a long-lived process: a cron entry that runs the worker once a minute and lets it exit when the queue is empty (see *Shared hosting*, step 7). Jobs then start within a minute of being requested; the pages show "working on it" and poll until the result is ready.
 - No cron at all: `QUEUE_CONNECTION=sync` runs each job inside the request that triggered it, as the app did before. It works, but long AI calls or big archives will hit PHP and proxy time limits.
 
+**Scheduler (for reminder emails).** Occasion reminders, birthday and anniversary reminders and the Monday digest are sent by `php artisan family:remind` (daily, 07:00 app time) and `php artisan family:digest` (Mondays). Laravel's scheduler runs them when something calls `php artisan schedule:run` every minute:
+
+```
+* * * * * cd /path/to/heirloom && php artisan schedule:run > /dev/null 2>&1
+```
+
+Without it, nothing is emailed; the "Coming up" list on the home page and the calendar feed still work. Both commands are safe to run by hand or more than once a day: every batch is recorded in the `reminder_log` table and never sent twice. `php artisan family:remind --date=2026-12-24` previews what would go out on another day.
+
 Production `.env`:
 
 | Key | Value |
@@ -116,8 +124,10 @@ Heirloom runs fine on a shared PHP host. The built CSS/JS in `public/build` is c
 7. **Cron (required).** Shared hosts cannot keep a queue worker alive, so a cron job starts one every minute; it processes whatever is waiting and exits when the queue is empty or after 50 seconds (a job already running finishes first). In cPanel's *Cron Jobs* add:
 
    ```
-   * * * * * cd ~/heirloom && php artisan queue:work --stop-when-empty --max-time=50 > /dev/null 2>&1
+   * * * * * cd ~/heirloom && php artisan schedule:run > /dev/null 2>&1 && php artisan queue:work --stop-when-empty --max-time=50 > /dev/null 2>&1
    ```
+
+   The first command runs the scheduler (reminder emails), the second the queue.
 
    Use the full path to the PHP 8.3 binary if the host's default `php` is older (the PHP selector page shows it, e.g. `/usr/local/bin/ea-php83`). AI results and archive downloads then appear within about a minute; while a job is waiting or running the page shows a progress note and refreshes itself when the result is ready. Failed jobs land in the `failed_jobs` table (`php artisan queue:failed`); the page shows the reason, and the user can simply try again. Finished archives are kept under `storage/app/private/families/<id>/exports/` until downloaded or for one day.
 

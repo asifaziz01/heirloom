@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Family;
 use App\Models\FamilyMember;
-use App\Models\Partnership;
 use App\Models\Person;
 use App\Services\FamilyGraph;
+use App\Services\Upcoming;
 use App\Support\PartialDate;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -76,7 +76,7 @@ class FamilyController extends Controller
                 'members' => $family->members()->count(),
                 'places' => $family->places()->count(),
             ],
-            'upcoming' => $this->upcoming($family, $people),
+            'upcoming' => Upcoming::build($family, $people, 30, CarbonImmutable::today()),
             'onThisDay' => $this->onThisDay($people),
             'questions' => $family->questions()->where('status', 'open')->with('about')->latest()->take(5)->get(),
             'pendingReviews' => $member->atLeast('editor') ? $family->changeRequests()->where('status', 'pending')->count() : 0,
@@ -142,46 +142,6 @@ class FamilyController extends Controller
         $user->update(['current_family_id' => $next?->id]);
 
         return redirect()->route('families.index')->with('status', "The \"{$name}\" archive and everything in it has been permanently deleted.");
-    }
-
-    /** Birthdays of living relatives, wedding anniversaries and remembrance days in the next 30 days. */
-    private function upcoming(Family $family, Collection $people): Collection
-    {
-        $today = CarbonImmutable::today();
-        $items = collect();
-        $next = function (string $date) use ($today): ?CarbonImmutable {
-            if (! PartialDate::isComplete($date)) {
-                return null;
-            }
-            [$y, $m, $d] = array_map('intval', explode('-', $date));
-            if ($m === 2 && $d === 29) {
-                $d = 28;
-            }
-            $candidate = $today->setDate($today->year, $m, $d);
-            if ($candidate->lt($today)) {
-                $candidate = $candidate->addYear();
-            }
-
-            return $candidate->diffInDays($today, true) <= 30 ? $candidate : null;
-        };
-
-        foreach ($people as $p) {
-            if ($p->is_living && $p->birth_date && ($when = $next($p->birth_date))) {
-                $items->push(['when' => $when, 'type' => 'birthday', 'person' => $p, 'years' => $when->year - PartialDate::year($p->birth_date)]);
-            }
-            if (! $p->is_living && $p->death_date && ($when = $next($p->death_date))) {
-                $items->push(['when' => $when, 'type' => 'remembrance', 'person' => $p, 'years' => $when->year - PartialDate::year($p->death_date)]);
-            }
-        }
-        $ids = $people->pluck('id');
-        foreach (Partnership::where('family_id', $family->id)->where('status', 'current')->whereNotNull('start_date')->with(['partner1', 'partner2'])->get() as $u) {
-            $bothLiving = $u->partner1?->is_living && $u->partner2?->is_living;
-            if ($bothLiving && $ids->contains($u->partner1_id) && ($when = $next($u->start_date))) {
-                $items->push(['when' => $when, 'type' => 'anniversary', 'partnership' => $u, 'years' => $when->year - PartialDate::year($u->start_date)]);
-            }
-        }
-
-        return $items->sortBy('when')->values();
     }
 
     private function onThisDay(Collection $people): Collection

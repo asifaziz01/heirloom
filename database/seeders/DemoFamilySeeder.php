@@ -142,6 +142,17 @@ class DemoFamilySeeder extends Seeder
             $e->people()->sync(collect($people)->pluck('id'));
         }
 
+        // Occasions: what the family is looking forward to (and remembers every year)
+        foreach ([
+            [['type' => 'wedding', 'title' => 'Arman & Hiba’s wedding', 'date' => now()->addDays(45)->toDateString(), 'end_date' => now()->addDays(47)->toDateString(), 'place' => 'Lucknow, India', 'venue' => 'Rahman house, Gomti Nagar', 'description' => "Mehndi on the first evening, nikah and walima on the following days. Relatives from abroad: let us know your flights and we will arrange pick-ups.\n\nDress code for the walima: traditional."], [$arman]],
+            [['type' => 'memorial', 'title' => 'Dada Abdul’s barsi', 'date' => '2009-01-19', 'repeats_yearly' => true, 'place' => 'Lucknow, India', 'venue' => 'Family home, after Asr', 'rsvp_enabled' => false, 'description' => 'Quran khwani at home followed by a meal for the neighbourhood, as every year.'], [$abdul]],
+            [['type' => 'reunion', 'title' => 'Rahman family summer get-together', 'date' => now()->addDays(120)->toDateString(), 'time' => '12:00', 'place' => 'Toronto, Canada', 'venue' => 'High Park, picnic area 7', 'description' => 'Bring a dish from wherever you live now.'], []],
+        ] as [$a, $people]) {
+            $o = $family->occasions()->create(collect($a)->except('place')->all() + ['place_id' => PlaceResolver::resolve($family, $a['place']), 'created_by' => $owner->id]);
+            $o->people()->sync(collect($people)->pluck('id'));
+        }
+        $family->occasions()->where('type', 'wedding')->first()->rsvps()->create(['user_id' => $zaraUser->id, 'status' => 'going', 'guests' => 1, 'note' => 'Landing Friday morning']);
+
         // Stories & questions
         $s1 = $family->stories()->create([
             'title' => 'The overnight train to Lucknow',

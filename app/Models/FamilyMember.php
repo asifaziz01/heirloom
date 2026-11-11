@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class FamilyMember extends Model
 {
@@ -18,6 +19,18 @@ class FamilyMember extends Model
     ];
 
     protected $guarded = [];
+
+    protected $casts = ['email_reminders' => 'boolean'];
+
+    /** Secret for this member's personal calendar feed, created the first time it is needed. */
+    public function calendarToken(): string
+    {
+        if (! $this->calendar_token) {
+            $this->forceFill(['calendar_token' => Str::random(40)])->save();
+        }
+
+        return $this->calendar_token;
+    }
 
     /**
      * A visitor browsing a public archive without an account (or a signed-in user who is

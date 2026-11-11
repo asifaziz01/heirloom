@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class Family extends Model
 {
@@ -76,6 +77,17 @@ class Family extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
+    }
+
+    public function occasions(): HasMany
+    {
+        return $this->hasMany(Occasion::class);
+    }
+
+    /** Members with an email address who have not switched reminder emails off. */
+    public function reminderRecipients(): Collection
+    {
+        return $this->users()->whereNotNull('users.email')->wherePivot('email_reminders', true)->get();
     }
 
     public function sources(): HasMany

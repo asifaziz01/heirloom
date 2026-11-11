@@ -5,6 +5,7 @@
             ['families.show', 'Home', 'M3 10.5 12 3l9 7.5V21H3z'],
             ['tree.show', 'Family tree', 'M12 3v6m0 0-5 4m5-4 5 4M7 13v4m10-4v4M4 17h6v4H4zm10 0h6v4h-6z'],
             ['people.index', 'People', 'M16 19v-1a4 4 0 0 0-8 0v1M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6'],
+            ['occasions.index', 'Occasions & reminders', 'M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 21h4'],
             ['relationship.calculator', 'How are we related?', 'M8 12h8M4 12a4 4 0 0 1 4-4m12 4a4 4 0 0 1-4 4'],
         ],
         'Memories' => [
@@ -110,9 +111,6 @@
                         <svg class="size-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg>
                         Install app
                     </button>
-                    <div x-show="$store.pwa.showIosHelp" x-cloak class="muted mt-2 text-xs leading-5">
-                        On iPhone or iPad: tap <strong>Share</strong> <span aria-hidden="true">⎙</span> in Safari, then <strong>Add to Home Screen</strong>.
-                    </div>
                 </div>
             </template>
         </div>
